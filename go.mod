@@ -1,4 +1,4 @@
-module github.com/koykov/simdtk
+module github.com/koykov/simd
 
 go 1.22
 
