@@ -1,4 +1,4 @@
-package simdtk
+package popcnt64
 
 import "golang.org/x/sys/cpu"
 
