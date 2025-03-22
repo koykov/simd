@@ -1,6 +1,6 @@
 #include "textflag.h"
 
-TEXT ·popcnt64NEON(SB), NOSPLIT, $0-32
+TEXT ·countNEON(SB), NOSPLIT, $0-32
     MOVD data+0(FP), R0   // point to slice start (R0 = &data[0])
     MOVD len+8(FP), R1    // slice len (R1 = len(data))
     MOVD $0, R2           // reset acc (R2 = 0)

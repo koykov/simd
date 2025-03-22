@@ -2,18 +2,18 @@ package popcnt64
 
 import "golang.org/x/sys/cpu"
 
-var riscv64lefn func([]uint64) uint64
+var funcRISCV64 func([]uint64) uint64
 
 func init() {
 	if cpu.RISCV64.HasV {
-		riscv64lefn = popcnt64RISCV64
+		funcRISCV64 = popcnt64RISCV64
 		return
 	}
-	riscv64lefn = popcnt64generic
+	funcRISCV64 = countGeneric
 }
 
-func popcnt64(data []uint64) uint64 {
-	return riscv64lefn(data)
+func count(data []uint64) uint64 {
+	return funcRISCV64(data)
 }
 
-func popcnt64RISCV64([]uint64) uint64
+func countRISCV64([]uint64) uint64

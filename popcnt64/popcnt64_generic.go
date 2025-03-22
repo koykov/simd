@@ -1,7 +1,7 @@
-//go:build (!amd64 && !arm64) || appengine || !gc || purego
+//go:build (!amd64 && !arm64 && !ppc64le && !riscv64) || appengine || !gc || purego
 
 package popcnt64
 
-func popcnt64(data []uint64) uint64 {
-	return popcnt64generic(data)
+func count(data []uint64) uint64 {
+	return countGeneric(data)
 }

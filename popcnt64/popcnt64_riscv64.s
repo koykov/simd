@@ -1,6 +1,6 @@
 #include "textflag.h"
 
-TEXT ·popcnt64RISCV64(SB), NOSPLIT, $0-32
+TEXT ·countRISCV64(SB), NOSPLIT, $0-32
     MOV data+0(FP), A0   // // point to slice start (A0 = &data[0])
     MOV len+8(FP), A1    // slice len (A1 = len(data))
     MOV $0, A2           // reset acc (A2 = 0)

@@ -1,7 +1,7 @@
 #include "textflag.h"
 
 // SSE2 version
-TEXT ·popcnt64SSE2(SB), NOSPLIT, $0-32
+TEXT ·countSSE2(SB), NOSPLIT, $0-32
     MOVQ data+0(FP), SI   // point to slice start (SI = &data[0])
     MOVQ len+8(FP), CX    // slice len (CX = len(data))
     XORQ AX, AX           // reset acc (AX = 0)
@@ -68,7 +68,7 @@ done:
     RET
 
 // AVX-2 version
-TEXT ·popcnt64AVX2(SB), NOSPLIT, $0-32
+TEXT ·countAVX2(SB), NOSPLIT, $0-32
     MOVQ data+0(FP), SI   // point to slice start (SI = &data[0])
     MOVQ len+8(FP), CX    // slice len (CX = len(data))
     XORQ AX, AX           // reset acc (AX = 0)
@@ -139,7 +139,7 @@ done:
     RET
 
 // AVX-512 version
-TEXT ·popcnt64AVX512(SB), NOSPLIT, $0-32
+TEXT ·countAVX512(SB), NOSPLIT, $0-32
     MOVQ data+0(FP), SI   // point to slice start (SI = &data[0])
     MOVQ len+8(FP), CX    // slice len (CX = len(data))
     XORQ AX, AX           // reset acc (AX = 0)

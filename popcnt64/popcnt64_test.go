@@ -21,11 +21,11 @@ func TestPopcnt64(t *testing.T) {
 		for i := 0; i < size; i++ {
 			stage.a[i] = popcnt64testInit[i%len(popcnt64testInit)]
 		}
-		stage.r = popcnt64generic(stage.a)
+		stage.r = countGeneric(stage.a)
 		t.Run(strconv.Itoa(size), func(t *testing.T) {
-			r := Popcnt64(stage.a)
+			r := Count(stage.a)
 			if r != stage.r {
-				t.Errorf("Popcnt64(%d) = %d, want %d", size, r, stage.r)
+				t.Errorf("Count(%d) = %d, want %d", size, r, stage.r)
 			}
 		})
 	}
@@ -39,7 +39,7 @@ func BenchmarkPopcnt64(b *testing.B) {
 			b.ReportAllocs()
 			b.SetBytes(int64(size * 8))
 			for i := 0; i < b.N; i++ {
-				Popcnt64(stage.a)
+				Count(stage.a)
 			}
 		})
 	}
