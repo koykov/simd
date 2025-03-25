@@ -16,4 +16,5 @@ func count(data []uint64) uint64 {
 	return funcPPC64LE(data)
 }
 
+//go:noescape
 func countPPC64LE([]uint64) uint64

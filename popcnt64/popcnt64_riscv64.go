@@ -16,4 +16,5 @@ func count(data []uint64) uint64 {
 	return funcRISCV64(data)
 }
 
+//go:noescape
 func countRISCV64([]uint64) uint64

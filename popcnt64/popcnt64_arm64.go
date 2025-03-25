@@ -16,4 +16,5 @@ func count(data []uint64) uint64 {
 	return funcARM64(data)
 }
 
+//go:noescape
 func countNEON([]uint64) uint64
