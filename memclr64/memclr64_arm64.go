@@ -7,7 +7,7 @@ func init() {
 		funcARM64 = memclrNEON
 		return
 	}
-	funcARM64 = memclrGeneric
+	funcARM64 = memclr64Generic
 }
 
 func memclr64(data []uint64) {

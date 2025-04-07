@@ -29,7 +29,7 @@ func Clear(p []byte) {
 	}
 }
 
-func memclrGeneric(p []uint64) {
+func memclr64Generic(p []uint64) {
 	_ = p[len(p)-1]
 	for i := 0; i < len(p); i++ {
 		p[i] = 0

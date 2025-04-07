@@ -3,5 +3,5 @@
 package memclr64
 
 func memclr64(data []uint64) {
-	return memclrGeneric(data)
+	memclr64Generic(data)
 }

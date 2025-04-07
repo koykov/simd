@@ -17,7 +17,7 @@ func init() {
 		funcAMD64 = memclrSSE2
 		return
 	}
-	funcAMD64 = memclrGeneric
+	funcAMD64 = memclr64Generic
 }
 
 func memclr64(p []uint64) {
