@@ -5,11 +5,11 @@ import "golang.org/x/sys/cpu"
 var funcAMD64 func([]uint64) uint64
 
 func init() {
-	if cpu.X86.HasBMI2 && cpu.X86.HasAVX512BW {
+	if cpu.X86.HasAVX512F {
 		funcAMD64 = countAVX512
 		return
 	}
-	if cpu.X86.HasBMI2 && cpu.X86.HasAVX2 {
+	if cpu.X86.HasAVX2 {
 		funcAMD64 = countAVX2
 		return
 	}
