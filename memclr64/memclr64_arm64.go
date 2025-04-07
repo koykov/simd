@@ -10,7 +10,7 @@ func init() {
 	funcARM64 = memclrGeneric
 }
 
-func memclr(data []uint64) {
+func memclr64(data []uint64) {
 	funcARM64(data)
 }
 
