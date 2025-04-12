@@ -24,24 +24,8 @@ func ClearBytes(p []byte) {
 	if n == 0 {
 		return
 	}
-	for len(p) > 8 {
-		u := *(*uint64)(unsafe.Pointer(&p[0]))
-		u = 0
-		_ = u
-		p = p[8:]
-	}
-	if len(p) > 4 {
-		u := *(*uint32)(unsafe.Pointer(&p[0]))
-		u = 0
-		_ = u
-		p = p[4:]
-	}
-	switch len(p) {
-	case 3:
-		p[0], p[1], p[2] = 0, 0, 0
-	case 2:
-		p[0], p[1] = 0, 0
-	case 1:
-		p[0] = 0
+	_ = p[n-1]
+	for i := 0; i < len(p); i++ {
+		p[i] = 0
 	}
 }
