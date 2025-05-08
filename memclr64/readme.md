@@ -19,3 +19,8 @@ The solution is optimized for very long input data.
 
 Package also provides [`ClearBytes`](bytes.go) method, that clears bytes slice. It uses default `Clear` method inside for
 clearing and clear rest of bytes in simple loop.
+
+## Clear raw memory
+
+Package provides unsafe version [CleanUnsafe](unsafe.go) method. Use with caution! Pointer must point to a memory block
+without heap pointers, memory leak may occur otherwise.
