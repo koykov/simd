@@ -32,9 +32,11 @@ func finalize(b []byte, i int) int {
 	if i < 0 {
 		return i
 	}
-	_ = b[len(b)-1]
-	for i < len(b) && (b[i] == '\n' || b[i] == '\r') {
-		i++
+	if i < len(b)-1 && b[i] == '\r' && b[i+1] == '\n' {
+		return i + 2
+	}
+	if i < len(b) && (b[i] == '\n' || b[i] == '\r') {
+		return i + 1
 	}
 	return i
 }
