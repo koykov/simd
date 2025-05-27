@@ -14,9 +14,9 @@ var stages []stage
 
 func init() {
 	for i := 1; i < 1e10; i *= 10 {
-		data := make([]byte, i)
-		data = append(data, '\n')
-		stages = append(stages, stage{data: data, pos: len(data) - 1})
+		data := make([]byte, i-1, i)
+		data = append(data, '\r')
+		stages = append(stages, stage{data: data, pos: len(data)})
 	}
 }
 
