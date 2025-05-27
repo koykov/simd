@@ -20,10 +20,10 @@ func init() {
 	}
 }
 
-func TestSkipLine(t *testing.T) {
+func TestIndex(t *testing.T) {
 	for _, st := range stages {
 		t.Run(strconv.Itoa(len(st.data)), func(t *testing.T) {
-			pos := SkipLine(st.data)
+			pos := Index(st.data)
 			if pos != st.pos {
 				t.Errorf("got %d, want %d", pos, st.pos)
 			}
@@ -31,13 +31,13 @@ func TestSkipLine(t *testing.T) {
 	}
 }
 
-func BenchmarkSkipLine(b *testing.B) {
+func BenchmarkIndex(b *testing.B) {
 	for _, st := range stages {
 		b.Run(strconv.Itoa(len(st.data)), func(b *testing.B) {
 			b.ReportAllocs()
 			b.SetBytes(int64(len(st.data)))
 			for i := 0; i < b.N; i++ {
-				SkipLine(st.data)
+				Index(st.data)
 			}
 		})
 	}

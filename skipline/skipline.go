@@ -1,6 +1,7 @@
 package skipline
 
-func SkipLine(b []byte) (i int) {
+// Index returns the index of last symbol of line (including NL/CR symbol).
+func Index(b []byte) (i int) {
 	n := len(b)
 	if n < 64 {
 		return skiplineGeneric(b)
