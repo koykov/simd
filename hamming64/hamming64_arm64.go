@@ -4,7 +4,7 @@ var funcARM64 func([]uint64, []uint64) int
 
 func init() {
 	if cpu.ARM64.HasASIMD {
-		funcARM64 = memclrNEON
+		funcARM64 = hammingNEON
 		return
 	}
 	funcARM64 = hammingGeneric
