@@ -20,19 +20,8 @@ func init() {
 	funcAMD64 = skiplineGeneric
 }
 
-func skipline(b []byte) (i int) {
-	n := len(b)
-	if n < 64 {
-		return skiplineGeneric(b)
-	}
-	n64 := n - n%64
-	if i = funcAMD64(b[:n64]); i >= 0 {
-		return
-	}
-	if i = skiplineGeneric(b[n64:]); i >= 0 {
-		return n64 + i
-	}
-	return -1
+func skipline(b []byte) int {
+	return funcAMD64(b)
 }
 
 //go:noescape
