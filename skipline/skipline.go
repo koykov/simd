@@ -1,5 +1,7 @@
 package skipline
 
+import "math"
+
 // Index returns the index of last symbol of line (including NL/CR symbol).
 func Index(b []byte) (i int) {
 	n := len(b)
@@ -20,9 +22,9 @@ func skiplineGeneric(b []byte) (i int) {
 	if len(b) == 0 {
 		return -1
 	}
-	_ = b[len(b)-1]
+	_, _ = b[len(b)-1], table[math.MaxUint8-1]
 	for i = 0; i < len(b); i++ {
-		if b[i] == '\n' || b[i] == '\r' {
+		if table[b[i]] {
 			return finalize(b, i)
 		}
 	}
@@ -36,7 +38,7 @@ func finalize(b []byte, i int) int {
 	if i < len(b)-1 && b[i] == '\r' && b[i+1] == '\n' {
 		return i + 2
 	}
-	if i < len(b) && (b[i] == '\n' || b[i] == '\r') {
+	if i < len(b) && table[b[i]] {
 		return i + 1
 	}
 	return i
