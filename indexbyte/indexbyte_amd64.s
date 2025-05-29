@@ -80,30 +80,47 @@ TEXT ·indexbyteAVX512(SB),NOSPLIT,$0-40
     XORQ DX, DX               // DX = index (will be returned)
 
     // Broadcast AL to all 64 bytes of ZMM0
-    MOVD AX, X0               // Move AL to XMM0
-    VPBROADCASTB X0, Z0       // Broadcast to all 64 bytes of ZMM0 (AVX512VL + AVX512BW)
+    MOVD AX, X0
+    VPBROADCASTB X0, Z0
 
-loop:
-    // Compare 64 bytes at a time
-    VMOVDQU8 (SI)(DX*1), Z1   // Load 64 bytes (AVX512F)
-    VPCMPEQB k1, Z0, Z1       // Compare bytes, mask result in k1 (AVX512BW)
-    KTESTQ k1, k1             // Check if any bits set in mask k1
-    JNZ found                 // If found, jump to found
+    // Prepare full mask
+    KXNORW K1, K1, K1         // Set all mask bits to 1
 
-    ADDQ $64, DX              // Advance index by 64
-    CMPQ DX, CX               // Check if we've processed all bytes
-    JB loop                   // If not, continue loop
+    // Adjust length to avoid overflow
+    MOVQ CX, BX
+    SUBQ $64, BX              // BX = length - 64 (last safe position)
+
+main_loop:
+    CMPQ DX, BX               // Compare index with (length-64)
+    JA tail_processing        // If above, process tail
+
+    // Process 64-byte blocks
+    VMOVDQU8 (SI)(DX*1), Z1
+    VPCMPB $0, Z0, Z1, K1     // Compare for equality
+    KORTESTW K1, K1
+    JNZ found_in_block
+
+    ADDQ $64, DX
+    JMP main_loop
+
+tail_processing:
+    // Handle last block (or single block if small)
+    VMOVDQU8 (SI)(BX*1), Z1   // Load last 64 bytes
+    VPCMPB $0, Z0, Z1, K1
+    KORTESTW K1, K1
+    JNZ found_in_block
 
 not_found:
-    VZEROUPPER                // Clear upper bits of ZMM/YMM registers
-    MOVQ $-1, ret+32(FP)      // Return -1 if not found
+    VZEROUPPER
+    MOVQ $-1, ret+32(FP)
     RET
 
-found:
-    // Find the position of the first set bit in k1
-    KMOVQ k1, BX              // Move mask to general-purpose register
-    BSFQ BX, BX               // Find first set bit (Bit Scan Forward)
-    ADDQ BX, DX               // Add to current offset
-    VZEROUPPER                // Clear upper bits
-    MOVQ DX, ret+32(FP)       // Return the position
+found_in_block:
+    KMOVQ K1, AX
+    BSFQ AX, AX
+    ADDQ DX, AX               // DX contains base offset
+    CMPQ AX, CX               // Verify we're within bounds
+    JAE not_found             // If beyond length, return -1
+    VZEROUPPER
+    MOVQ AX, ret+32(FP)
     RET

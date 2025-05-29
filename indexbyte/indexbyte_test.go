@@ -26,6 +26,7 @@ func indextest(b []byte, x byte, fn func([]byte, byte) int) (i int) {
 		return indexbyteGeneric(b, x)
 	}
 	n64 := n - n%64
+	// println(n64)
 	if i = fn(b[:n64], x); i >= 0 {
 		return i
 	}
@@ -44,18 +45,24 @@ func TestIndex(t *testing.T) {
 					t.Errorf("got %d, want %d", pos, st.pos)
 				}
 			})
-		})
-		t.Run("sse2", func(t *testing.T) {
-			pos := indextest(st.data, 'X', indexbyteSSE2)
-			if pos != st.pos {
-				t.Errorf("got %d, want %d", pos, st.pos)
-			}
-		})
-		t.Run("sse2", func(t *testing.T) {
-			pos := indextest(st.data, 'X', indexbyteAVX2)
-			if pos != st.pos {
-				t.Errorf("got %d, want %d", pos, st.pos)
-			}
+			t.Run("sse2", func(t *testing.T) {
+				pos := indextest(st.data, 'X', indexbyteSSE2)
+				if pos != st.pos {
+					t.Errorf("got %d, want %d", pos, st.pos)
+				}
+			})
+			t.Run("avx2", func(t *testing.T) {
+				pos := indextest(st.data, 'X', indexbyteAVX2)
+				if pos != st.pos {
+					t.Errorf("got %d, want %d", pos, st.pos)
+				}
+			})
+			t.Run("avx512", func(t *testing.T) {
+				pos := indextest(st.data, 'X', indexbyteAVX512)
+				if pos != st.pos {
+					t.Errorf("got %d, want %d", pos, st.pos)
+				}
+			})
 		})
 	}
 }
@@ -82,6 +89,13 @@ func BenchmarkIndex(b *testing.B) {
 				b.SetBytes(int64(len(st.data)))
 				for i := 0; i < b.N; i++ {
 					indextest(st.data, 'X', indexbyteAVX2)
+				}
+			})
+			b.Run("avx512", func(b *testing.B) {
+				b.ReportAllocs()
+				b.SetBytes(int64(len(st.data)))
+				for i := 0; i < b.N; i++ {
+					indextest(st.data, 'X', indexbyteAVX512)
 				}
 			})
 		})
