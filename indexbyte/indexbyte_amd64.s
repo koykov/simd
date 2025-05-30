@@ -75,52 +75,35 @@ found:
 // func indexbyteAVX512(b []byte, x byte) int
 TEXT ·indexbyteAVX512(SB),NOSPLIT,$0-40
     MOVQ b_base+0(FP), SI     // SI = pointer to bytes
-    MOVQ b_len+8(FP), CX      // CX = length of bytes
+    MOVQ b_len+8(FP), CX      // CX = length of bytes (always multiple of 64)
     MOVB x+24(FP), AL         // AL = byte to search for
     XORQ DX, DX               // DX = index (will be returned)
 
-    // Broadcast AL to all 64 bytes of ZMM0
-    MOVD AX, X0
-    VPBROADCASTB X0, Z0
+    // Broadcast AL to all bytes of ZMM0
+    MOVD AX, X0               // Move AL to XMM0
+    VPBROADCASTB X0, Z0       // Broadcast to all 64 bytes of ZMM0
 
-    // Prepare full mask
-    KXNORW K1, K1, K1         // Set all mask bits to 1
+loop:
+    // Compare 64 bytes at a time
+    VMOVDQU64 (SI)(DX*1), Z1  // Load 64 bytes
+    VPCMPEQB Z0, Z1, K1       // Compare with target byte, store mask in K1
+    KMOVQ K1, BX              // Move mask to BX
+    TESTQ BX, BX              // Check for any matches
+    JNZ found                 // If found, jump to found
 
-    // Adjust length to avoid overflow
-    MOVQ CX, BX
-    SUBQ $64, BX              // BX = length - 64 (last safe position)
-
-main_loop:
-    CMPQ DX, BX               // Compare index with (length-64)
-    JA tail_processing        // If above, process tail
-
-    // Process 64-byte blocks
-    VMOVDQU8 (SI)(DX*1), Z1
-    VPCMPB $0, Z0, Z1, K1     // Compare for equality
-    KORTESTW K1, K1
-    JNZ found_in_block
-
-    ADDQ $64, DX
-    JMP main_loop
-
-tail_processing:
-    // Handle last block (or single block if small)
-    VMOVDQU8 (SI)(BX*1), Z1   // Load last 64 bytes
-    VPCMPB $0, Z0, Z1, K1
-    KORTESTW K1, K1
-    JNZ found_in_block
+    ADDQ $64, DX              // Advance index by 64
+    CMPQ DX, CX               // Check if we've processed all bytes
+    JB loop                   // If not, continue loop
 
 not_found:
-    VZEROUPPER
-    MOVQ $-1, ret+32(FP)
+    VZEROUPPER                // Clear upper bits of ZMM registers
+    MOVQ $-1, ret+32(FP)      // Return -1 if not found
     RET
 
-found_in_block:
-    KMOVQ K1, AX
-    BSFQ AX, AX
-    ADDQ DX, AX               // DX contains base offset
-    CMPQ AX, CX               // Verify we're within bounds
-    JAE not_found             // If beyond length, return -1
-    VZEROUPPER
-    MOVQ AX, ret+32(FP)
+found:
+    // Find the position of the first set bit in BX
+    BSFQ BX, BX               // Find first set bit
+    ADDQ BX, DX               // Add to current offset
+    VZEROUPPER                // Clear upper bits of ZMM registers
+    MOVQ DX, ret+32(FP)       // Return the position
     RET
