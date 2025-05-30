@@ -30,11 +30,10 @@ func init() {
 
 func indextest(b []byte, x byte, fn func([]byte, byte) int) (i int) {
 	n := len(b)
-	if n < 64 {
+	if n < 128 {
 		return indexbyteGeneric(b, x)
 	}
 	n64 := n - n%64
-	// println(n64)
 	if i = fn(b[:n64], x); i >= 0 {
 		return i
 	}

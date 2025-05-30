@@ -4,7 +4,7 @@ import "bytes"
 
 func Index(b []byte, x byte) (i int) {
 	n := len(b)
-	if n < 64 {
+	if n < 128 {
 		return indexbyteGeneric(b, x)
 	}
 	n64 := n - n%64
