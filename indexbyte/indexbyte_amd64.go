@@ -25,10 +25,10 @@ func indexbyte(b []byte, x byte) int {
 }
 
 //go:noescape
-func indexbyteSSE2(b []byte, x byte) int
+func indexbyteSSE2([]byte, byte) int
 
 //go:noescape
-func indexbyteAVX2(b []byte, x byte) int
+func indexbyteAVX2([]byte, byte) int
 
 //go:noescape
-func indexbyteAVX512(b []byte, x byte) int
+func indexbyteAVX512([]byte, byte) int
