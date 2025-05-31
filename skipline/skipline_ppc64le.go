@@ -17,4 +17,4 @@ func skipline(b []byte) int {
 }
 
 //go:noescape
-func skiplinePPC64LE(b []byte) int
+func skiplinePPC64LE([]byte) int

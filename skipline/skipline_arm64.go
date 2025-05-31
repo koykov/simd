@@ -15,4 +15,4 @@ func skipline(b []byte) int {
 }
 
 //go:noescape
-func skiplineNEON([]uint64)
+func skiplineNEON([]byte)

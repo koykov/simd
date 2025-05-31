@@ -6,7 +6,7 @@ var funcPPC64LE func([]uint64, []uint64) int
 
 func init() {
 	if cpu.PPC64.IsPOWER9 {
-		funcPPC64LE = funcPPC64LE
+		funcPPC64LE = hammingPPC64LE
 		return
 	}
 	funcPPC64LE = hammingGeneric

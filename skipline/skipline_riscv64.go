@@ -10,7 +10,7 @@ func init() {
 	funcRISCV64 = skiplineGeneric
 }
 
-func hamming(b []byte) int {
+func skipline(b []byte) int {
 	return funcRISCV64(a, b)
 }
 
