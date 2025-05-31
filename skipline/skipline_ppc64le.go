@@ -6,7 +6,7 @@ var funcPPC64LE func([]byte) int
 
 func init() {
 	if cpu.PPC64.HasVMX && cpu.PPC64.HasVSX {
-		funcPPC64LE = funcPPC64LE
+		funcPPC64LE = skiplinePPC64LE
 		return
 	}
 	funcPPC64LE = skiplineGeneric

@@ -6,7 +6,7 @@ var funcPPC64LE func([]uint64)
 
 func init() {
 	if cpu.PPC64.IsPOWER8 {
-		funcPPC64LE = funcPPC64LE
+		funcPPC64LE = memclrPPC64LE
 		return
 	}
 	funcPPC64LE = memclr64Generic

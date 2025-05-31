@@ -6,7 +6,7 @@ var funcPPC64LE func([]uint64) uint64
 
 func init() {
 	if cpu.PPC64.IsPOWER8 {
-		funcPPC64LE = funcPPC64LE
+		funcPPC64LE = countPPC64LE
 		return
 	}
 	funcPPC64LE = countGeneric
