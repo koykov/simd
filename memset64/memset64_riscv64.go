@@ -4,7 +4,7 @@ var funcRISCV64 func([]uint64, uint64)
 
 func init() {
 	if cpu.RISCV64.HasV {
-		funcRISCV64 = popcnt64RISCV64
+		funcRISCV64 = memsetRISCV64
 		return
 	}
 	funcRISCV64 = memset64Generic
