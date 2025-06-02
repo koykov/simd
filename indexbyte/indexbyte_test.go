@@ -76,31 +76,29 @@ func TestIndex(t *testing.T) {
 
 func TestIndex64(t *testing.T) {
 	for _, st := range stages64 {
-		t.Run(strconv.Itoa(len(st.data)), func(t *testing.T) {
-			t.Run("generic", func(t *testing.T) {
-				pos := indexbyteGeneric(st.data, 'X')
-				if pos != st.pos {
-					t.Errorf("got %d, want %d", pos, st.pos)
-				}
-			})
-			t.Run("sse2", func(t *testing.T) {
-				pos := indextest(st.data, 'X', indexbyteSSE2)
-				if pos != st.pos {
-					t.Errorf("got %d, want %d", pos, st.pos)
-				}
-			})
-			t.Run("avx2", func(t *testing.T) {
-				pos := indextest(st.data, 'X', indexbyteAVX2)
-				if pos != st.pos {
-					t.Errorf("got %d, want %d", pos, st.pos)
-				}
-			})
-			t.Run("avx512", func(t *testing.T) {
-				pos := indextest(st.data, 'X', indexbyteAVX512)
-				if pos != st.pos {
-					t.Errorf("got %d, want %d", pos, st.pos)
-				}
-			})
+		t.Run("generic", func(t *testing.T) {
+			pos := indexbyteGeneric(st.data, 'X')
+			if pos != st.pos {
+				t.Errorf("got %d, want %d", pos, st.pos)
+			}
+		})
+		t.Run("sse2", func(t *testing.T) {
+			pos := indextest(st.data, 'X', indexbyteSSE2)
+			if pos != st.pos {
+				t.Errorf("got %d, want %d", pos, st.pos)
+			}
+		})
+		t.Run("avx2", func(t *testing.T) {
+			pos := indextest(st.data, 'X', indexbyteAVX2)
+			if pos != st.pos {
+				t.Errorf("got %d, want %d", pos, st.pos)
+			}
+		})
+		t.Run("avx512", func(t *testing.T) {
+			pos := indextest(st.data, 'X', indexbyteAVX512)
+			if pos != st.pos {
+				t.Errorf("got %d, want %d", pos, st.pos)
+			}
 		})
 	}
 }
