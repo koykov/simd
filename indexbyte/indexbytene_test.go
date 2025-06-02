@@ -50,23 +50,23 @@ func TestIndexNE(t *testing.T) {
 				}
 			})
 			t.Run("sse2", func(t *testing.T) {
-				pos := indextest(st.data, 'X', indexbyteSSE2)
+				pos := indexnetest(st.data, 'X', indexbyteneSSE2)
 				if pos != st.pos {
 					t.Errorf("got %d, want %d", pos, st.pos)
 				}
 			})
 			t.Run("avx2", func(t *testing.T) {
-				pos := indextest(st.data, 'X', indexbyteAVX2)
+				pos := indexnetest(st.data, 'X', indexbyteneAVX2)
 				if pos != st.pos {
 					t.Errorf("got %d, want %d", pos, st.pos)
 				}
 			})
-			// t.Run("avx512", func(t *testing.T) {
-			// 	pos := indextest(st.data, 'X', indexbyteAVX512)
-			// 	if pos != st.pos {
-			// 		t.Errorf("got %d, want %d", pos, st.pos)
-			// 	}
-			// })
+			t.Run("avx512", func(t *testing.T) {
+				pos := indexnetest(st.data, 'X', indexbyteneAVX512)
+				if pos != st.pos {
+					t.Errorf("got %d, want %d", pos, st.pos)
+				}
+			})
 		})
 	}
 }
@@ -80,23 +80,23 @@ func TestIndexNE64(t *testing.T) {
 			}
 		})
 		t.Run("sse2", func(t *testing.T) {
-			pos := indextest(st.data, 'X', indexbyteneSSE2)
+			pos := indexnetest(st.data, 'X', indexbyteneSSE2)
 			if pos != st.pos {
 				t.Errorf("got %d, want %d", pos, st.pos)
 			}
 		})
 		t.Run("avx2", func(t *testing.T) {
-			pos := indextest(st.data, 'X', indexbyteneAVX2)
+			pos := indexnetest(st.data, 'X', indexbyteneAVX2)
 			if pos != st.pos {
 				t.Errorf("got %d, want %d", pos, st.pos)
 			}
 		})
-		// t.Run("avx512", func(t *testing.T) {
-		// 	pos := indextest(st.data, 'X', indexbyteAVX512)
-		// 	if pos != st.pos {
-		// 		t.Errorf("got %d, want %d", pos, st.pos)
-		// 	}
-		// })
+		t.Run("avx512", func(t *testing.T) {
+			pos := indexnetest(st.data, 'X', indexbyteneAVX512)
+			if pos != st.pos {
+				t.Errorf("got %d, want %d", pos, st.pos)
+			}
+		})
 	}
 }
 
@@ -114,23 +114,23 @@ func BenchmarkIndexNE(b *testing.B) {
 				b.ReportAllocs()
 				b.SetBytes(int64(len(st.data)))
 				for i := 0; i < b.N; i++ {
-					indextest(st.data, 'X', indexbyteneSSE2)
+					indexnetest(st.data, 'X', indexbyteneSSE2)
 				}
 			})
 			b.Run("avx2", func(b *testing.B) {
 				b.ReportAllocs()
 				b.SetBytes(int64(len(st.data)))
 				for i := 0; i < b.N; i++ {
-					indextest(st.data, 'X', indexbyteneAVX2)
+					indexnetest(st.data, 'X', indexbyteneAVX2)
 				}
 			})
-			// b.Run("avx512", func(b *testing.B) {
-			// 	b.ReportAllocs()
-			// 	b.SetBytes(int64(len(st.data)))
-			// 	for i := 0; i < b.N; i++ {
-			// 		indextest(st.data, 'X', indexbyteneAVX512)
-			// 	}
-			// })
+			b.Run("avx512", func(b *testing.B) {
+				b.ReportAllocs()
+				b.SetBytes(int64(len(st.data)))
+				for i := 0; i < b.N; i++ {
+					indexnetest(st.data, 'X', indexbyteneAVX512)
+				}
+			})
 		})
 	}
 }

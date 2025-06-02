@@ -125,3 +125,67 @@ not_found:
     VZEROUPPER                // Clear upper bits of YMM registers
     MOVQ $-1, ret+32(FP)
     RET
+
+    // func indexbyteneAVX512(b []byte, x byte) int
+    // Requires: AVX512F, AVX512BW, AVX512VL
+    TEXT ·indexbyteneAVX512(SB),NOSPLIT,$0-40
+        MOVQ b_base+0(FP), SI     // SI = pointer to bytes
+        MOVQ b_len+8(FP), CX      // CX = length of bytes
+        MOVB x+24(FP), AL         // AL = byte to search for
+        XORQ DX, DX               // DX = index (will be returned)
+
+        // Broadcast AL to all bytes of ZMM0
+        MOVD AX, X0
+        VPBROADCASTB X0, Z0       // ZMM0 = [AL,AL,...,AL] (64 bytes)
+
+    search_loop:
+        // Compare 64 bytes at a time
+        VMOVDQU64 (SI)(DX*1), Z1  // Load 64 bytes
+        VPCMPEQB Z0, Z1, K1       // Compare with target byte, mask in K1
+        KTESTQ K1, K1
+        JZ not_found_chunk        // No matches in this chunk
+
+        // Found potential match
+        KMOVQ K1, BX
+        BSFQ BX, BX               // Position of first match in chunk
+        ADDQ BX, DX               // DX = absolute position of quote
+
+        // Count backslashes before this position
+        XORQ R8, R8               // R8 = backslash count
+        MOVQ DX, R9               // R9 = current position
+        DECQ R9                   // Start checking from previous byte
+
+    count_slashes:
+        CMPQ R9, $0
+        JL count_done             // Stop if we reached start of slice
+        CMPB (SI)(R9*1), $0x5C    // Is it backslash?
+        JNE count_done
+        INCQ R8                   // Increment backslash count
+        DECQ R9                   // Move to previous byte
+        JMP count_slashes
+
+    count_done:
+        // If even number of backslashes - found our quote
+        TESTQ $1, R8
+        JZ found
+
+        // Odd number - continue search from next byte
+        INCQ DX
+        CMPQ DX, CX
+        JGE not_found
+        JMP search_loop
+
+    found:
+        VZEROUPPER                // Clear upper bits of ZMM registers
+        MOVQ DX, ret+32(FP)
+        RET
+
+    not_found_chunk:
+        ADDQ $64, DX              // Move to next 64-byte chunk
+        CMPQ DX, CX
+        JLT search_loop
+
+    not_found:
+        VZEROUPPER                // Clear upper bits of ZMM registers
+        MOVQ $-1, ret+32(FP)
+        RET
