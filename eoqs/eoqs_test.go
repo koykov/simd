@@ -9,13 +9,11 @@ var stages [][]byte
 
 func init() {
 	for i := 64; i < 1e10; i *= 2 {
-		data := make([]byte, i)
+		data := make([]byte, i+1)
 		data[0] = '"'
-		data[i-1] = '"'
-		for j := 16; j < i; j += 16 {
-			data[j-1] = '\\'
-			data[j] = '"'
-		}
+		data[i] = '"'
+		data[i/2-1] = '\\'
+		data[i/2] = '"'
 		stages = append(stages, data)
 	}
 }
