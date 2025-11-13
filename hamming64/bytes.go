@@ -8,7 +8,7 @@ import (
 // DistanceBytes returns the Hamming distance between two byte slices.
 func DistanceBytes(a, b []byte) (r int) {
 	al, bl := len(a), len(b)
-	mn := min(al, bl)
+	mn := minI(al, bl)
 	if mn > 8 {
 		mn -= mn % 8
 		mn /= 8
@@ -24,7 +24,7 @@ func DistanceBytes(a, b []byte) (r int) {
 	}
 
 	a, b = a[mn*8:], b[mn*8:]
-	mn = min(len(a), len(b))
+	mn = minI(len(a), len(b))
 	var i int
 	for i = 0; i < mn; i++ {
 		r += bits.OnesCount8(a[i] ^ b[i])
