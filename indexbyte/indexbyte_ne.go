@@ -44,3 +44,5 @@ func indexbyteneGeneric(b []byte, x byte) int {
 		off = i + 1
 	}
 }
+
+var _ = IndexAtNE

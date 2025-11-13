@@ -30,3 +30,5 @@ func IndexAt(b []byte, x byte, at int) (i int) {
 func indexbyteGeneric(b []byte, x byte) (i int) {
 	return bytes.IndexByte(b, x)
 }
+
+var _ = IndexAt
