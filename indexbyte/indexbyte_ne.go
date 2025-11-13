@@ -17,6 +17,16 @@ func IndexNE(b []byte, x byte) (i int) {
 	return -1
 }
 
+func IndexAtNE(b []byte, x byte, at int) (i int) {
+	if at < 0 || at >= len(b) {
+		return -1
+	}
+	if i = IndexNE(b[at:], x); i < 0 {
+		return
+	}
+	return i + at
+}
+
 func indexbyteneGeneric(b []byte, x byte) int {
 	var off int
 	for {
@@ -34,3 +44,5 @@ func indexbyteneGeneric(b []byte, x byte) int {
 		off = i + 1
 	}
 }
+
+var _ = IndexAtNE
