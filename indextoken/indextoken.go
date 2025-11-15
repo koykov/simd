@@ -3,7 +3,7 @@ package indextoken
 import "bytes"
 
 func Index(b []byte) int {
-	return indextokenAVX2(b)
+	return indextoken(b)
 }
 
 func IndexAt(b []byte, at int) (i int) {
