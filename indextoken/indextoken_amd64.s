@@ -1,94 +1,79 @@
 #include "textflag.h"
 
 // func indextokenSSE2(b []byte) int
-TEXT ·indextokenSSE2(SB), NOSPLIT, $0-32
-    MOVQ b_base+0(FP), SI     // SI = pointer to slice data
-    MOVQ b_len+8(FP), CX      // CX = slice length
-    XORQ AX, AX               // AX = current index
+TEXT ·indextokenSSE2(SB),NOSPLIT,$0-32
+    MOVQ b_base+0(FP), SI     // SI = pointer to bytes
+    MOVQ b_len+8(FP), CX      // CX = length of bytes
+    XORQ DX, DX               // DX = index (will be returned)
 
-    // Check for empty slice
-    TESTQ CX, CX
-    JZ    not_found
+    // Broadcast '.' to X0
+    MOVL $0x2E2E2E2E, AX
+    MOVD AX, X0
+    PSHUFL $0, X0, X0         // X0 = all bytes = '.'
 
-    // Load masks for target characters
-    // '.' = 0x2E, '[' = 0x5B, ']' = 0x5D, '@' = 0x40
-    MOVOU ·mask0(SB), X0      // Load first mask ('.' and '[')
-    MOVOU ·mask1(SB), X1      // Load second mask (']' and '@')
+    // Broadcast '[' to X1
+    MOVL $0x5B5B5B5B, AX
+    MOVD AX, X1
+    PSHUFL $0, X1, X1         // X1 = all bytes = '['
+
+    // Broadcast ']' to X2
+    MOVL $0x5D5D5D5D, AX
+    MOVD AX, X2
+    PSHUFL $0, X2, X2         // X2 = all bytes = ']'
+
+    // Broadcast '@' to X3
+    MOVL $0x40404040, AX
+    MOVD AX, X3
+    PSHUFL $0, X3, X3         // X3 = all bytes = '@'
 
 main_loop:
-    CMPQ CX, $16
-    JB   tail_processing
+    CMPQ DX, CX
+    JAE not_found
 
     // Load 16 bytes
-    MOVOU (SI), X2
+    MOVOU (SI)(DX*1), X4
 
-    // Compare with first mask characters
-    MOVOU X2, X3
-    PCMPEQB X0, X3           // Compare with '.' and '['
-    PMOVMSKB X3, DX
-    TESTL DX, DX
-    JNZ   found_in_block
+    // Compare with each target character
+    MOVOU X4, X5
+    PCMPEQB X0, X5            // Compare with '.'
+    PMOVMSKB X5, BX
+    TESTL BX, BX
+    JNZ found
 
-    // Compare with second mask characters
-    MOVOU X2, X3
-    PCMPEQB X1, X3           // Compare with ']' and '@'
-    PMOVMSKB X3, DX
-    TESTL DX, DX
-    JNZ   found_in_block
+    MOVOU X4, X5
+    PCMPEQB X1, X5            // Compare with '['
+    PMOVMSKB X5, BX
+    TESTL BX, BX
+    JNZ found
 
-    // Move to next block
-    ADDQ $16, SI
-    ADDQ $16, AX
-    SUBQ $16, CX
-    JMP  main_loop
+    MOVOU X4, X5
+    PCMPEQB X2, X5            // Compare with ']'
+    PMOVMSKB X5, BX
+    TESTL BX, BX
+    JNZ found
 
-tail_processing:
-    // Process remaining bytes
-    TESTQ CX, CX
-    JZ    not_found
+    MOVOU X4, X5
+    PCMPEQB X3, X5            // Compare with '@'
+    PMOVMSKB X5, BX
+    TESTL BX, BX
+    JNZ found
 
-    MOVQ SI, DI              // DI = current pointer
-    MOVQ CX, DX              // DX = bytes left to check
+    // No match, move to next block
+    ADDQ $16, DX
+    JMP main_loop
 
-tail_loop:
-    MOVB (DI), BL
-    CMPB BL, $0x2E           // '.'
-    JE   found_tail
-    CMPB BL, $0x5B           // '['
-    JE   found_tail
-    CMPB BL, $0x5D           // ']'
-    JE   found_tail
-    CMPB BL, $0x40           // '@'
-    JE   found_tail
+found:
+    // Find the position of the first set bit
+    BSFL BX, BX               // BX = position in current block (0-15)
+    ADDQ BX, DX               // DX = total position
+    CMPQ DX, CX               // Check if position is within bounds
+    JB store_result
+    MOVQ $-1, DX              // If beyond bounds, return -1
 
-    INCQ DI
-    DECQ DX
-    JNZ  tail_loop
-    JMP  not_found
-
-found_in_block:
-    // Find position within current block
-    BSFW DX, DX              // DX = position in current block
-    ADDQ DX, AX              // Add block offset
-    JMP  done
-
-found_tail:
-    // Calculate position for tail
-    MOVQ DI, AX
-    SUBQ b_base+0(FP), AX    // AX = DI - base
-    JMP  done
-
-not_found:
-    MOVQ $-1, AX
-
-done:
-    MOVQ AX, ret+24(FP)
+store_result:
+    MOVQ DX, ret+24(FP)
     RET
 
-// Mask data
-DATA ·mask0+0(SB)/8, $0x2E5B2E5B2E5B2E5B  // '.' and '[' alternating
-DATA ·mask0+8(SB)/8, $0x2E5B2E5B2E5B2E5B
-DATA ·mask1+0(SB)/8, $0x405D405D405D405D  // '@' and ']' alternating
-DATA ·mask1+8(SB)/8, $0x405D405D405D405D
-GLOBL ·mask0(SB), (NOPTR+RODATA), $16
-GLOBL ·mask1(SB), (NOPTR+RODATA), $16
+not_found:
+    MOVQ $-1, ret+24(FP)
+    RET
