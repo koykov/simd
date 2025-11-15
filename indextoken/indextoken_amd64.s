@@ -154,3 +154,64 @@ not_found:
     MOVQ $-1, ret+24(FP)
     RET
 
+// func indextokenAVX512(b []byte) int
+TEXT ·indextokenAVX512(SB),NOSPLIT,$0-32
+    MOVQ b_base+0(FP), SI
+    MOVQ b_len+8(FP), CX
+    XORQ DX, DX
+
+    // Setup broadcasted characters
+    MOVL $0x2E, AX
+    MOVD AX, X0
+    VPBROADCASTB X0, Z0       // Z0 = '.'
+
+    MOVL $0x5B, AX
+    MOVD AX, X1
+    VPBROADCASTB X1, Z1       // Z1 = '['
+
+    MOVL $0x5D, AX
+    MOVD AX, X2
+    VPBROADCASTB X2, Z2       // Z2 = ']'
+
+    MOVL $0x40, AX
+    MOVD AX, X3
+    VPBROADCASTB X3, Z3       // Z3 = '@'
+
+main_loop:
+    CMPQ DX, CX
+    JAE not_found
+
+    VMOVDQU64 (SI)(DX*1), Z4
+
+    // Compare with all targets and combine masks with OR
+    VPCMPEQB Z0, Z4, K1       // K1 = match with '.'
+    VPCMPEQB Z1, Z4, K2       // K2 = match with '['
+    KORQ K1, K2, K1           // K1 = K1 | K2
+    VPCMPEQB Z2, Z4, K2       // K2 = match with ']'
+    KORQ K1, K2, K1           // K1 = K1 | K2
+    VPCMPEQB Z3, Z4, K2       // K2 = match with '@'
+    KORQ K1, K2, K1           // K1 = combined mask
+
+    KMOVQ K1, BX
+    TESTQ BX, BX
+    JNZ found
+
+    ADDQ $64, DX
+    JMP main_loop
+
+found:
+    BSFQ BX, BX
+    ADDQ BX, DX
+    CMPQ DX, CX
+    JB store_result
+    MOVQ $-1, DX
+
+store_result:
+    VZEROUPPER
+    MOVQ DX, ret+24(FP)
+    RET
+
+not_found:
+    VZEROUPPER
+    MOVQ $-1, ret+24(FP)
+    RET
