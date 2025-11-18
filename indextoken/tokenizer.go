@@ -34,6 +34,10 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 	return
 }
 
+func (t *Tokenizer[T]) Reset() {
+	t.off = 0
+}
+
 type sheader struct {
 	data uintptr
 	len  int
