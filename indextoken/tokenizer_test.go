@@ -12,6 +12,16 @@ type stageR struct {
 }
 
 var stagesR = []stageR{
+	{source: "", tokens: nil},
+	{source: "..", tokens: nil},
+	{source: ".", tokens: nil},
+	{source: "[]", tokens: nil},
+	{source: "@", tokens: nil},
+	{source: "[0]", tokens: []string{"0"}},
+	{source: "single", tokens: []string{"single"}},
+	{source: "@tag", tokens: []string{"tag"}},
+	{source: "a.b.c", tokens: []string{"a", "b", "c"}},
+
 	{source: "user.profile.email", tokens: []string{"user", "profile", "email"}},
 	{source: "data[0].value", tokens: []string{"data", "0", "value"}},
 	{source: "config.database.host@primary", tokens: []string{"config", "database", "host", "primary"}},
@@ -54,16 +64,6 @@ var stagesR = []stageR{
 	{source: "api.v2.users[42].profile.email@work", tokens: []string{"api", "v2", "users", "42", "profile", "email", "work"}},
 	{source: "system.metrics.cpu[0].usage@percent", tokens: []string{"system", "metrics", "cpu", "0", "usage", "percent"}},
 	{source: "db.primary.tables[customers].rows[0].id", tokens: []string{"db", "primary", "tables", "customers", "rows", "0", "id"}},
-
-	{source: "a.b.c", tokens: []string{"a", "b", "c"}},
-	{source: "single", tokens: []string{"single"}},
-	{source: "[0]", tokens: []string{"0"}},
-	{source: "@tag", tokens: []string{"tag"}},
-	{source: "..", tokens: nil},
-	{source: "[]", tokens: nil},
-	{source: "@", tokens: nil},
-	{source: ".", tokens: nil},
-	{source: "", tokens: nil},
 
 	{source: "github.api.repos.owner.name", tokens: []string{"github", "api", "repos", "owner", "name"}},
 	{source: "docker.containers[app].ports[80]", tokens: []string{"docker", "containers", "app", "ports", "80"}},
