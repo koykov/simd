@@ -1,7 +1,6 @@
 package hamming64
 
 import (
-	"fmt"
 	"math"
 	"strconv"
 	"testing"
@@ -42,7 +41,7 @@ func TestDistance(t *testing.T) {
 func BenchmarkDistance(b *testing.B) {
 	for i := 0; i < len(stages); i++ {
 		st := &stages[i]
-		b.Run(fmt.Sprintf(strconv.Itoa(len(st.a))), func(b *testing.B) {
+		b.Run(strconv.Itoa(len(st.a)), func(b *testing.B) {
 			b.SetBytes(int64(len(st.a)) * 2 * 8)
 			b.ReportAllocs()
 			for i := 0; i < b.N; i++ {
