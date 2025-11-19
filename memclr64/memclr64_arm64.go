@@ -1,5 +1,7 @@
 package memclr64
 
+import "golang.org/x/sys/cpu"
+
 var funcARM64 func([]uint64)
 
 func init() {

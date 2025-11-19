@@ -1,5 +1,7 @@
 package skipline
 
+import "golang.org/x/sys/cpu"
+
 var funcARM64 func([]byte) int
 
 func init() {
