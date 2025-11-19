@@ -110,11 +110,11 @@ func TestTokenizer(t *testing.T) {
 			var tkn Tokenizer[string]
 			var r []string
 			for {
-				tt := tkn.Next(stg.source)
-				if len(tt) == 0 {
-					break
+				if tt := tkn.Next(stg.source); len(tt) > 0 {
+					r = append(r, tt)
+					continue
 				}
-				r = append(r, tt)
+				break
 			}
 			if !reflect.DeepEqual(r, stg.tokens) {
 				t.Errorf("tokens mismatch. got %v, expected %v", r, stg.tokens)
@@ -131,11 +131,11 @@ func BenchmarkTokenizer(b *testing.B) {
 		var tkn Tokenizer[string]
 		buf = buf[:0]
 		for {
-			tt := tkn.Next(stg.source)
-			if len(tt) == 0 {
-				break
+			if tt := tkn.Next(stg.source); len(tt) > 0 {
+				buf = append(buf, tt)
+				continue
 			}
-			buf = append(buf, tt)
+			break
 		}
 	}
 }
