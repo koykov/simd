@@ -8,7 +8,7 @@ import (
 
 var testSizes = []int{1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000}
 
-func TestMemclr64(t *testing.T) {
+func TestMemset64(t *testing.T) {
 	for _, size := range testSizes {
 		t.Run(strconv.Itoa(size), func(t *testing.T) {
 			data := make([]uint64, size)
@@ -22,7 +22,7 @@ func TestMemclr64(t *testing.T) {
 	}
 }
 
-func BenchmarkMemclr64(b *testing.B) {
+func BenchmarkMemset64(b *testing.B) {
 	for _, size := range testSizes {
 		b.Run(strconv.Itoa(size), func(b *testing.B) {
 			data := make([]uint64, size)

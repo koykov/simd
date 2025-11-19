@@ -1,5 +1,7 @@
 package indexbyte
 
+import "golang.org/x/sys/cpu"
+
 var funcARM64 func([]byte, byte) int
 
 func init() {

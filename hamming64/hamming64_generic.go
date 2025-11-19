@@ -1,4 +1,4 @@
-//go:build (!amd64 && !arm64 && !ppc64le && !riscv64) || appengine || !gc || purego
+//go:build (!amd64 && !arm64) || appengine || !gc || purego
 
 package hamming64
 
