@@ -15,4 +15,4 @@ func indexbyte(b []byte, x byte) int {
 }
 
 //go:noescape
-func indexbyteNEON([]uint64, byte)
+func indexbyteNEON([]byte, byte)
