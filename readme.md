@@ -7,6 +7,7 @@ Collection of various vectorised functions. Currently supported functions:
 * [Hamming64](hamming64) - calculate Hamming distance of 64-bit unsigned integers
 * [SkipLine](skipline) - find end of line
 * [Indexbyte](indexbyte) - find position of given byte in bytes slice
+* [Indextoken](indextoken) - find position of next token in bytes slice
 * ...
 
 ## Supported architectures/instructions
