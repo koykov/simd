@@ -9,8 +9,10 @@ import (
 func DistanceBytes(a, b []byte) (r int) {
 	al, bl := len(a), len(b)
 	mn := minI(al, bl)
+	var mn8 int
 	if mn > 8 {
 		mn -= mn % 8
+		mn8 = mn
 		mn /= 8
 		type sh struct {
 			p    uintptr
@@ -23,7 +25,7 @@ func DistanceBytes(a, b []byte) (r int) {
 		r = Distance(a64, b64)
 	}
 
-	a, b = a[mn*8:], b[mn*8:]
+	a, b = a[mn8:], b[mn8:]
 	mn = minI(len(a), len(b))
 	var i int
 	for i = 0; i < mn; i++ {

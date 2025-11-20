@@ -1,6 +1,6 @@
 //go:build arm64
 
-package hamming
+package hamming64
 
 import (
 	"testing"
