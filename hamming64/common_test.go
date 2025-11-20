@@ -26,11 +26,11 @@ func init() {
 	}
 }
 
-func TestDistance(t *testing.T) {
+func testfn(t *testing.T, fn func([]uint64, []uint64) int) {
 	for i := 0; i < len(stages); i++ {
 		st := &stages[i]
 		t.Run(strconv.Itoa(len(st.a)), func(t *testing.T) {
-			d := Distance(st.a, st.b)
+			d := fn(st.a, st.b)
 			if d != st.dist {
 				t.Errorf("got %v, want %v", d, st.dist)
 			}
@@ -38,14 +38,14 @@ func TestDistance(t *testing.T) {
 	}
 }
 
-func BenchmarkDistance(b *testing.B) {
+func benchfn(b *testing.B, fn func([]uint64, []uint64) int) {
 	for i := 0; i < len(stages); i++ {
 		st := &stages[i]
 		b.Run(strconv.Itoa(len(st.a)), func(b *testing.B) {
 			b.SetBytes(int64(len(st.a)) * 2 * 8)
 			b.ReportAllocs()
 			for i := 0; i < b.N; i++ {
-				Distance(st.a, st.b)
+				fn(st.a, st.b)
 			}
 		})
 	}
