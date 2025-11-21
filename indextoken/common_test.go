@@ -29,7 +29,8 @@ func init() {
 }
 
 func testfn(t *testing.T, fn func([]byte) int) {
-	for _, st := range stages {
+	for i := 0; i < len(stages); i++ {
+		st := &stages[i]
 		t.Run(strconv.Itoa(len(st.data)), func(t *testing.T) {
 			pos := fn(st.data)
 			if pos != st.pos {
@@ -40,7 +41,8 @@ func testfn(t *testing.T, fn func([]byte) int) {
 }
 
 func testfn64(t *testing.T, fn func([]byte) int) {
-	for _, st := range stages64 {
+	for i := 0; i < len(stages64); i++ {
+		st := &stages64[i]
 		pos := fn(st.data)
 		if pos != st.pos {
 			t.Errorf("got %d, want %d", pos, st.pos)
@@ -49,7 +51,8 @@ func testfn64(t *testing.T, fn func([]byte) int) {
 }
 
 func benchfn(b *testing.B, fn func([]byte) int) {
-	for _, st := range stages {
+	for i := 0; i < len(stages); i++ {
+		st := &stages[i]
 		b.Run(strconv.Itoa(len(st.data)), func(b *testing.B) {
 			b.ReportAllocs()
 			b.SetBytes(int64(len(st.data)))
