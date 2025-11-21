@@ -11,20 +11,20 @@ import (
 func TestIndex(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, indexbyteGeneric) })
 	if cpu.ARM64.HasASIMD {
-		t.Run("sse2", func(t *testing.T) { testfn(t, indexbyteNEON) })
+		t.Run("neon", func(t *testing.T) { testfn(t, indexbyteNEON) })
 	}
 }
 
 func TestIndex64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn64(t, indexbyteGeneric) })
 	if cpu.ARM64.HasASIMD {
-		t.Run("sse2", func(t *testing.T) { testfn64(t, indexbyteNEON) })
+		t.Run("neon", func(t *testing.T) { testfn64(t, indexbyteNEON) })
 	}
 }
 
 func BenchmarkIndex(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, indexbyteGeneric) })
 	if cpu.ARM64.HasASIMD {
-		b.Run("sse2", func(b *testing.B) { benchfn(b, indexbyteNEON) })
+		b.Run("neon", func(b *testing.B) { benchfn(b, indexbyteNEON) })
 	}
 }
