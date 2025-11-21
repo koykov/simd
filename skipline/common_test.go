@@ -37,10 +37,11 @@ func init() {
 	}
 }
 
-func TestIndex(t *testing.T) {
-	for _, st := range stages {
+func testfn(t *testing.T, fn func([]byte) int) {
+	for i := 0; i < len(stages); i++ {
+		st := &stages[i]
 		t.Run(strconv.Itoa(len(st.data)), func(t *testing.T) {
-			pos := Index(st.data)
+			pos := index(st.data, fn)
 			if pos != st.pos {
 				t.Errorf("got %d, want %d", pos, st.pos)
 			}
@@ -48,10 +49,11 @@ func TestIndex(t *testing.T) {
 	}
 }
 
-func TestIndex2(t *testing.T) {
-	for _, st := range stages {
+func testfn2(t *testing.T, fn func([]byte) int) {
+	for i := 0; i < len(stages); i++ {
+		st := &stages[i]
 		t.Run(strconv.Itoa(len(st.data)), func(t *testing.T) {
-			pos, posnl := Index2(st.data)
+			pos, posnl := index2(st.data, fn)
 			if pos != st.pos || posnl != st.posnl {
 				t.Errorf("got %d/%d, want %d/%d", pos, st.pos, posnl, st.posnl)
 			}
@@ -59,25 +61,27 @@ func TestIndex2(t *testing.T) {
 	}
 }
 
-func BenchmarkIndex(b *testing.B) {
-	for _, st := range stages {
+func benchfn(b *testing.B, fn func([]byte) int) {
+	for i := 0; i < len(stages); i++ {
+		st := &stages[i]
 		b.Run(strconv.Itoa(len(st.data)), func(b *testing.B) {
 			b.ReportAllocs()
 			b.SetBytes(int64(len(st.data)))
-			for i := 0; i < b.N; i++ {
-				Index(st.data)
+			for j := 0; j < b.N; j++ {
+				index(st.data, fn)
 			}
 		})
 	}
 }
 
-func BenchmarkIndex2(b *testing.B) {
-	for _, st := range stages {
+func benchfn2(b *testing.B, fn func([]byte) int) {
+	for i := 0; i < len(stages); i++ {
+		st := &stages[i]
 		b.Run(strconv.Itoa(len(st.data)), func(b *testing.B) {
 			b.ReportAllocs()
 			b.SetBytes(int64(len(st.data)))
-			for i := 0; i < b.N; i++ {
-				Index2(st.data)
+			for j := 0; j < b.N; j++ {
+				index2(st.data, fn)
 			}
 		})
 	}

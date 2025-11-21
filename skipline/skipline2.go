@@ -3,13 +3,15 @@ package skipline
 import "math"
 
 // Index2 returns the index of last symbol of line (including NL/CR symbols).
-func Index2(b []byte) (int, int) {
+func Index2(b []byte) (int, int) { return index2(b, skipline) }
+
+func index2(b []byte, fn func([]byte) int) (int, int) {
 	n := len(b)
 	if n < 64 {
 		return skiplineGeneric2(b)
 	}
 	n64 := n - n%64
-	if i := skipline(b[:n64]); i >= 0 {
+	if i := fn(b[:n64]); i >= 0 {
 		return i, finalize(b, i)
 	}
 	if i, j := skiplineGeneric2(b[n64:]); i >= 0 {
@@ -43,3 +45,5 @@ func finalize(b []byte, i int) int {
 	}
 	return i
 }
+
+var _ = Index2

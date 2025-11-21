@@ -18,3 +18,5 @@ func countGeneric(data []uint64) (r uint64) {
 	}
 	return
 }
+
+var _ = Count
