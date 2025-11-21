@@ -16,7 +16,7 @@ func TestDistance(t *testing.T) {
 	if cpu.X86.HasAVX2 {
 		t.Run("avx2", func(t *testing.T) { testfn(t, hammingAVX2) })
 	}
-	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512BW && cpu.X86.HasAVX512VL {
+	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VPOPCNTDQ {
 		t.Run("avx512", func(t *testing.T) { testfn(t, hammingAVX512) })
 	}
 }
@@ -29,7 +29,7 @@ func BenchmarkDistance(b *testing.B) {
 	if cpu.X86.HasAVX2 {
 		b.Run("avx2", func(b *testing.B) { benchfn(b, hammingAVX2) })
 	}
-	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512BW && cpu.X86.HasAVX512VL {
+	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VPOPCNTDQ {
 		b.Run("avx512", func(b *testing.B) { benchfn(b, hammingAVX512) })
 	}
 }
