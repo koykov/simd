@@ -39,9 +39,9 @@ func indexbyteneGeneric(b []byte, x byte) int {
 			sc++
 		}
 		if sc%2 == 0 {
-			return i
+			return off + i
 		}
-		off = i + 1
+		off += i + 1
 	}
 }
 
