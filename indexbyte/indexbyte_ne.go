@@ -34,10 +34,11 @@ func indexbyteneGeneric(b []byte, x byte) int {
 		if i < 0 {
 			return -1
 		}
-		if i == 0 {
-			return off
+		var sc int
+		for j := off + i - 1; j >= 0 && b[j] == '\\'; j-- {
+			sc++
 		}
-		if i > 0 && b[off+i-1] != '\\' {
+		if sc%2 == 0 {
 			return off + i
 		}
 		off += i + 1
