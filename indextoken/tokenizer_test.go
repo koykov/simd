@@ -137,23 +137,48 @@ var stagesR = []stageR{
 }
 
 func TestTokenizer(t *testing.T) {
-	for i := range stagesR {
-		stg := &stagesR[i]
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			var tkn Tokenizer[string]
-			var r []string
-			for {
-				if tt := tkn.Next(stg.source); len(tt) > 0 {
-					r = append(r, tt)
-					continue
+	t.Run("no flags", func(t *testing.T) {
+		for i := range stagesR {
+			stg := &stagesR[i]
+			t.Run(strconv.Itoa(i), func(t *testing.T) {
+				var tkn Tokenizer[string]
+				var r []string
+				for {
+					if tt := tkn.Next(stg.source); len(tt) > 0 {
+						r = append(r, tt)
+						continue
+					}
+					break
 				}
-				break
+				if !reflect.DeepEqual(r, stg.tokens) {
+					t.Errorf("tokens mismatch. got %v, expected %v", r, stg.tokens)
+				}
+			})
+		}
+	})
+	t.Run("sqb", func(t *testing.T) {
+		for i := range stagesR {
+			stg := &stagesR[i]
+			if len(stg.tokensSQB) == 0 {
+				continue
 			}
-			if !reflect.DeepEqual(r, stg.tokens) {
-				t.Errorf("tokens mismatch. got %v, expected %v", r, stg.tokens)
-			}
-		})
-	}
+			t.Run(strconv.Itoa(i), func(t *testing.T) {
+				var tkn Tokenizer[string]
+				tkn.KeepSquareBrackets()
+				var r []string
+				for {
+					if tt := tkn.Next(stg.source); len(tt) > 0 {
+						r = append(r, tt)
+						continue
+					}
+					break
+				}
+				if !reflect.DeepEqual(r, stg.tokensSQB) {
+					t.Errorf("tokens mismatch. got %v, expected %v", r, stg.tokens)
+				}
+			})
+		}
+	})
 }
 
 func BenchmarkTokenizer(b *testing.B) {
