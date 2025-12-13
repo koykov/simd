@@ -29,14 +29,18 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 	p := *(*[]byte)(unsafe.Pointer(&h))
 	var i int
 	for i != -1 {
-		if t.offm() >= uint64(len(b)) {
+		off := t.offm()
+		if off >= uint64(len(b)) {
 			return
 		}
-		i = IndexAt(p, int(t.offm()))
+		i = IndexAt(p, int(off))
 		if i < 0 {
 			i = len(p)
 		}
-		s := p[t.offm():i]
+		s := p[off:i]
+		if t.sqb() && off > 0 && b[off-1] == '[' && i < len(b) && b[i] == ']' {
+			s = p[off-1 : i+1]
+		}
 		t.offs(i + 1)
 		if len(s) == 0 {
 			continue
@@ -58,6 +62,10 @@ func (t *Tokenizer[T]) offm() uint64 {
 func (t *Tokenizer[T]) offs(v int) {
 	flag := t.off & flagKeepSQB
 	t.off = uint64(v) | flag
+}
+
+func (t *Tokenizer[T]) sqb() bool {
+	return t.off&flagKeepSQB != 0
 }
 
 type sheader struct {
