@@ -1,13 +1,26 @@
 package indextoken
 
-import "unsafe"
+import (
+	"math"
+	"unsafe"
+)
+
+const (
+	flagKeepSQB = uint64(1) << 63
+	maskKeepSQB = uint64(math.MaxUint64) ^ flagKeepSQB
+)
 
 type byteseq interface {
 	~string | ~[]byte
 }
 
 type Tokenizer[T byteseq] struct {
-	off int
+	off uint64
+}
+
+func (t *Tokenizer[T]) KeepSquareBrackets() *Tokenizer[T] {
+	t.off = t.off | flagKeepSQB
+	return t
 }
 
 func (t *Tokenizer[T]) Next(b T) (r T) {
@@ -16,15 +29,15 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 	p := *(*[]byte)(unsafe.Pointer(&h))
 	var i int
 	for i != -1 {
-		if t.off >= len(b) {
+		if t.offm() >= uint64(len(b)) {
 			return
 		}
-		i = IndexAt(p, t.off)
+		i = IndexAt(p, int(t.offm()))
 		if i < 0 {
 			i = len(p)
 		}
-		s := p[t.off:i]
-		t.off = i + 1
+		s := p[t.offm():i]
+		t.offinc(i + 1)
 		if len(s) == 0 {
 			continue
 		}
@@ -36,6 +49,17 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 
 func (t *Tokenizer[T]) Reset() {
 	t.off = 0
+}
+
+func (t *Tokenizer[T]) offm() uint64 {
+	return t.off & maskKeepSQB
+}
+
+func (t *Tokenizer[T]) offinc(d int) {
+	off := t.offm()
+	flag := t.off & flagKeepSQB
+	off += uint64(d)
+	t.off = off | flag
 }
 
 type sheader struct {
