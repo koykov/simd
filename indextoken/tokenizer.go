@@ -37,7 +37,7 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 			i = len(p)
 		}
 		s := p[t.offm():i]
-		t.offinc(i + 1)
+		t.offs(i + 1)
 		if len(s) == 0 {
 			continue
 		}
@@ -55,11 +55,9 @@ func (t *Tokenizer[T]) offm() uint64 {
 	return t.off & maskKeepSQB
 }
 
-func (t *Tokenizer[T]) offinc(d int) {
-	off := t.offm()
+func (t *Tokenizer[T]) offs(v int) {
 	flag := t.off & flagKeepSQB
-	off += uint64(d)
-	t.off = off | flag
+	t.off = uint64(v) | flag
 }
 
 type sheader struct {
