@@ -39,7 +39,9 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 		}
 		s := p[off:i]
 		if t.sqb() && off > 0 && b[off-1] == '[' && i < len(b) && b[i] == ']' {
-			s = p[off-1 : i+1]
+			if s = p[off-1 : i+1]; len(s) == 2 {
+				s = s[:0]
+			}
 		}
 		t.offs(i + 1)
 		if len(s) == 0 {
