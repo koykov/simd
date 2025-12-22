@@ -17,8 +17,6 @@ Currently supported arch and instructions sets:
   * SSE2-SSE4.2
   * AVX2
   * AVX512
-* ARM64
-  * NEON/ASIMD
 
 All AMD64 solutions supports fallback mode - checks at init supported instructions sets and choose the optimal:
 * use AVX512 if possible
