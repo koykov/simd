@@ -1,4 +1,4 @@
-//go:build (!amd64 && !arm64) || appengine || !gc || purego
+//go:build !amd64 || appengine || !gc || purego
 
 package indexbyte
 
