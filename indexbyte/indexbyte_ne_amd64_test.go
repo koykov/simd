@@ -8,7 +8,7 @@ import (
 
 func TestIndexNE(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, indexbyteneGeneric) })
-	if cpu.ARM64.HasASIMD {
+	if cpu.X86.HasSSE2 {
 		t.Run("sse2", func(t *testing.T) { testfn(t, indexbyteneSSE2) })
 	}
 	if cpu.X86.HasAVX2 {
@@ -21,7 +21,7 @@ func TestIndexNE(t *testing.T) {
 
 func TestIndexNE64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn64(t, indexbyteneGeneric) })
-	if cpu.ARM64.HasASIMD {
+	if cpu.X86.HasSSE2 {
 		t.Run("sse2", func(t *testing.T) { testfn64(t, indexbyteneSSE2) })
 	}
 	if cpu.X86.HasAVX2 {
@@ -34,7 +34,7 @@ func TestIndexNE64(t *testing.T) {
 
 func BenchmarkIndexNE(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, indexbyteneGeneric) })
-	if cpu.ARM64.HasASIMD {
+	if cpu.X86.HasSSE2 {
 		b.Run("sse2", func(b *testing.B) { benchfn(b, indexbyteneSSE2) })
 	}
 	if cpu.X86.HasAVX2 {
