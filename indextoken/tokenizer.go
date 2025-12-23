@@ -6,8 +6,9 @@ import (
 )
 
 const (
-	flagKeepSQB = uint64(1) << 63
-	maskKeepSQB = uint64(math.MaxUint64) ^ flagKeepSQB
+	flagKeepSQB   = uint64(1) << 63
+	flagKeepAt    = uint64(1) << 62
+	maskKeepFlags = uint64(math.MaxUint64) ^ (flagKeepSQB | flagKeepAt)
 )
 
 type byteseq interface {
@@ -20,6 +21,11 @@ type Tokenizer[T byteseq] struct {
 
 func (t *Tokenizer[T]) KeepSquareBrackets() *Tokenizer[T] {
 	t.off = t.off | flagKeepSQB
+	return t
+}
+
+func (t *Tokenizer[T]) KeepAt() *Tokenizer[T] {
+	t.off = t.off | flagKeepAt
 	return t
 }
 
@@ -43,6 +49,9 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 				s = s[:0]
 			}
 		}
+		if t.at() && off > 0 && b[off-1] == '@' {
+			// todo implement me
+		}
 		t.offs(i + 1)
 		if len(s) == 0 {
 			continue
@@ -58,7 +67,7 @@ func (t *Tokenizer[T]) Reset() {
 }
 
 func (t *Tokenizer[T]) offm() uint64 {
-	return t.off & maskKeepSQB
+	return t.off & maskKeepFlags
 }
 
 func (t *Tokenizer[T]) offs(v int) {
@@ -68,6 +77,10 @@ func (t *Tokenizer[T]) offs(v int) {
 
 func (t *Tokenizer[T]) sqb() bool {
 	return t.off&flagKeepSQB != 0
+}
+
+func (t *Tokenizer[T]) at() bool {
+	return t.off&flagKeepAt != 0
 }
 
 type sheader struct {

@@ -10,6 +10,7 @@ type stageR struct {
 	source    string
 	tokens    []string
 	tokensSQB []string
+	tokensAt  []string
 }
 
 var stagesR = []stageR{
@@ -20,12 +21,13 @@ var stagesR = []stageR{
 	{source: "@", tokens: nil},
 	{source: "[0]", tokens: []string{"0"}, tokensSQB: []string{"[0]"}},
 	{source: "single", tokens: []string{"single"}},
-	{source: "@tag", tokens: []string{"tag"}},
+	{source: "@tag", tokens: []string{"tag"}, tokensAt: []string{"@tag"}},
 	{source: "a.b.c", tokens: []string{"a", "b", "c"}},
 
 	{source: "user.profile.email", tokens: []string{"user", "profile", "email"}},
 	{source: "data[0].value", tokens: []string{"data", "0", "value"}, tokensSQB: []string{"data", "[0]", "value"}},
-	{source: "config.database.host@primary", tokens: []string{"config", "database", "host", "primary"}},
+	{source: "config.database.host@primary", tokens: []string{"config", "database", "host", "primary"},
+		tokensAt: []string{"config", "database", "host", "@primary"}},
 	{source: "api.users[123].name", tokens: []string{"api", "users", "123", "name"},
 		tokensSQB: []string{"api", "users", "[123]", "name"}},
 
@@ -34,11 +36,13 @@ var stagesR = []stageR{
 		tokensSQB: []string{"response", "body", "data", "[0]", "id"}},
 	{source: "app.routes.api.v1.users", tokens: []string{"app", "routes", "api", "v1", "users"}},
 	{source: "server.ports[8080].protocol@http", tokens: []string{"server", "ports", "8080", "protocol", "http"},
-		tokensSQB: []string{"server", "ports", "[8080]", "protocol", "http"}},
+		tokensSQB: []string{"server", "ports", "[8080]", "protocol", "http"},
+		tokensAt:  []string{"server", "ports", "8080", "protocol", "@http"}},
 
 	{source: "system.cpu.usage", tokens: []string{"system", "cpu", "usage"}},
 	{source: "disk.partitions[0].size@gb", tokens: []string{"disk", "partitions", "0", "size", "gb"},
-		tokensSQB: []string{"disk", "partitions", "[0]", "size", "gb"}},
+		tokensSQB: []string{"disk", "partitions", "[0]", "size", "gb"},
+		tokensAt:  []string{"disk", "partitions", "0", "size", "@gb"}},
 	{source: "network.interfaces.eth0.ip", tokens: []string{"network", "interfaces", "eth0", "ip"}},
 	{source: "log.files.app[2023].size", tokens: []string{"log", "files", "app", "2023", "size"},
 		tokensSQB: []string{"log", "files", "app", "[2023]", "size"}},
@@ -48,7 +52,8 @@ var stagesR = []stageR{
 		tokensSQB: []string{"query", "results", "[5]", "name"}},
 	{source: "schema.public.tables.orders", tokens: []string{"schema", "public", "tables", "orders"}},
 	{source: "index.primary.keys[0]@unique", tokens: []string{"index", "primary", "keys", "0", "unique"},
-		tokensSQB: []string{"index", "primary", "keys", "[0]", "unique"}},
+		tokensSQB: []string{"index", "primary", "keys", "[0]", "unique"},
+		tokensAt:  []string{"index", "primary", "keys", "0", "@unique"}},
 
 	{source: "object.properties.length", tokens: []string{"object", "properties", "length"}},
 	{source: "array.items[99].value", tokens: []string{"array", "items", "99", "value"},
@@ -70,21 +75,25 @@ var stagesR = []stageR{
 	{source: "[].empty.brackets", tokens: []string{"empty", "brackets"}},
 	{source: "test..data[].value", tokens: []string{"test", "data", "value"}},
 
-	{source: "user-name.first@company", tokens: []string{"user-name", "first", "company"}},
+	{source: "user-name.first@company", tokens: []string{"user-name", "first", "company"},
+		tokensAt: []string{"user-name", "first", "@company"}},
 	{source: "file.name.with.dots.txt", tokens: []string{"file", "name", "with", "dots", "txt"}},
 	{source: "path.with-dashes.config", tokens: []string{"path", "with-dashes", "config"}},
 
 	{source: "api.v2.users[42].profile.email@work", tokens: []string{"api", "v2", "users", "42", "profile", "email", "work"},
-		tokensSQB: []string{"api", "v2", "users", "[42]", "profile", "email", "work"}},
+		tokensSQB: []string{"api", "v2", "users", "[42]", "profile", "email", "work"},
+		tokensAt:  []string{"api", "v2", "users", "42", "profile", "email", "@work"}},
 	{source: "system.metrics.cpu[0].usage@percent", tokens: []string{"system", "metrics", "cpu", "0", "usage", "percent"},
-		tokensSQB: []string{"system", "metrics", "cpu", "[0]", "usage", "percent"}},
+		tokensSQB: []string{"system", "metrics", "cpu", "[0]", "usage", "percent"},
+		tokensAt:  []string{"system", "metrics", "cpu", "0", "usage", "@percent"}},
 	{source: "db.primary.tables[customers].rows[0].id", tokens: []string{"db", "primary", "tables", "customers", "rows", "0", "id"},
 		tokensSQB: []string{"db", "primary", "tables", "[customers]", "rows", "[0]", "id"}},
 
 	{source: "github.api.repos.owner.name", tokens: []string{"github", "api", "repos", "owner", "name"}},
 	{source: "docker.containers[app].ports[80]", tokens: []string{"docker", "containers", "app", "ports", "80"},
 		tokensSQB: []string{"docker", "containers", "[app]", "ports", "[80]"}},
-	{source: "kubernetes.pods.nginx.status@running", tokens: []string{"kubernetes", "pods", "nginx", "status", "running"}},
+	{source: "kubernetes.pods.nginx.status@running", tokens: []string{"kubernetes", "pods", "nginx", "status", "running"},
+		tokensAt: []string{"kubernetes", "pods", "nginx", "status", "@running"}},
 	{source: "aws.s3.buckets[my-bucket].files[0]", tokens: []string{"aws", "s3", "buckets", "my-bucket", "files", "0"},
 		tokensSQB: []string{"aws", "s3", "buckets", "[my-bucket]", "files", "[0]"}},
 
@@ -104,9 +113,12 @@ var stagesR = []stageR{
 	{source: "elements[42_1].value", tokens: []string{"elements", "42_1", "value"},
 		tokensSQB: []string{"elements", "[42_1]", "value"}},
 
-	{source: "data.raw.temperature@celsius", tokens: []string{"data", "raw", "temperature", "celsius"}},
-	{source: "user.session.token@expired", tokens: []string{"user", "session", "token", "expired"}},
-	{source: "file.backup.archive@compressed", tokens: []string{"file", "backup", "archive", "compressed"}},
+	{source: "data.raw.temperature@celsius", tokens: []string{"data", "raw", "temperature", "celsius"},
+		tokensAt: []string{"data", "raw", "temperature", "@celsius"}},
+	{source: "user.session.token@expired", tokens: []string{"user", "session", "token", "expired"},
+		tokensAt: []string{"user", "session", "token", "@expired"}},
+	{source: "file.backup.archive@compressed", tokens: []string{"file", "backup", "archive", "compressed"},
+		tokensAt: []string{"file", "backup", "archive", "@compressed"}},
 
 	{source: "company.departments.engineering.teams.backend.employees[5].profile.contact.phone",
 		tokens:    []string{"company", "departments", "engineering", "teams", "backend", "employees", "5", "profile", "contact", "phone"},
@@ -116,16 +128,20 @@ var stagesR = []stageR{
 		tokensSQB: []string{"system", "hardware", "motherboard", "cpu", "cores", "[0]", "cache", "l1"}},
 
 	{source: "..test..data[42]..value@final", tokens: []string{"test", "data", "42", "value", "final"},
-		tokensSQB: []string{"test", "data", "[42]", "value", "final"}},
+		tokensSQB: []string{"test", "data", "[42]", "value", "final"},
+		tokensAt:  []string{"test", "data", "42", "value", "@final"}},
 	{source: "start.[0].middle[].end@", tokens: []string{"start", "0", "middle", "end"},
-		tokensSQB: []string{"start", "[0]", "middle", "end"}},
+		tokensSQB: []string{"start", "[0]", "middle", "end"},
+		tokensAt:  []string{"start", "0", "middle", "end"}},
 	{source: "@global.config..servers[primary].host", tokens: []string{"global", "config", "servers", "primary", "host"},
-		tokensSQB: []string{"global", "config", "servers", "[primary]", "host"}},
+		tokensSQB: []string{"global", "config", "servers", "[primary]", "host"},
+		tokensAt:  []string{"@global", "config", "servers", "primary", "host"}},
 
 	{source: "game.players[hero].inventory.weapons[0].damage", tokens: []string{"game", "players", "hero", "inventory", "weapons", "0", "damage"},
 		tokensSQB: []string{"game", "players", "[hero]", "inventory", "weapons", "[0]", "damage"}},
 	{source: "car.engine.cylinders[3].pressure@psi", tokens: []string{"car", "engine", "cylinders", "3", "pressure", "psi"},
-		tokensSQB: []string{"car", "engine", "cylinders", "[3]", "pressure", "psi"}},
+		tokensSQB: []string{"car", "engine", "cylinders", "[3]", "pressure", "psi"},
+		tokensAt:  []string{"car", "engine", "cylinders", "3", "pressure", "@psi"}},
 	{source: "weather.stations[NYC].sensors.temperature", tokens: []string{"weather", "stations", "NYC", "sensors", "temperature"},
 		tokensSQB: []string{"weather", "stations", "[NYC]", "sensors", "temperature"}},
 
