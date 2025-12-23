@@ -50,7 +50,9 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 			}
 		}
 		if t.at() && off > 0 && b[off-1] == '@' {
-			// todo implement me
+			if s = p[off-1 : i]; len(s) == 1 {
+				s = s[:0]
+			}
 		}
 		t.offs(i + 1)
 		if len(s) == 0 {

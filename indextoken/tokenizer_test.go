@@ -190,7 +190,30 @@ func TestTokenizer(t *testing.T) {
 					break
 				}
 				if !reflect.DeepEqual(r, stg.tokensSQB) {
-					t.Errorf("tokens mismatch. got %v, expected %v", r, stg.tokens)
+					t.Errorf("tokens mismatch. got %v, expected %v", r, stg.tokensSQB)
+				}
+			})
+		}
+	})
+	t.Run("at", func(t *testing.T) {
+		for i := range stagesR {
+			stg := &stagesR[i]
+			if len(stg.tokensAt) == 0 {
+				continue
+			}
+			t.Run(strconv.Itoa(i), func(t *testing.T) {
+				var tkn Tokenizer[string]
+				tkn.KeepAt()
+				var r []string
+				for {
+					if tt := tkn.Next(stg.source); len(tt) > 0 {
+						r = append(r, tt)
+						continue
+					}
+					break
+				}
+				if !reflect.DeepEqual(r, stg.tokensAt) {
+					t.Errorf("tokens mismatch. got %v, expected %v", r, stg.tokensAt)
 				}
 			})
 		}
