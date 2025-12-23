@@ -8,7 +8,8 @@ import (
 const (
 	flagKeepSQB   = uint64(1) << 63
 	flagKeepAt    = uint64(1) << 62
-	maskKeepFlags = uint64(math.MaxUint64) ^ (flagKeepSQB | flagKeepAt)
+	flagAll       = flagKeepSQB | flagKeepAt
+	maskKeepFlags = uint64(math.MaxUint64) ^ flagAll
 )
 
 type byteseq interface {
@@ -39,7 +40,11 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 		if off >= uint64(len(b)) {
 			return
 		}
-		i = IndexAt(p, int(off))
+		var d uint64
+		if t.at() && p[off] == '@' {
+			d = 1
+		}
+		i = IndexAt(p, int(off+d))
 		if i < 0 {
 			i = len(p)
 		}
@@ -73,7 +78,7 @@ func (t *Tokenizer[T]) offm() uint64 {
 }
 
 func (t *Tokenizer[T]) offs(v int) {
-	flag := t.off & flagKeepSQB
+	flag := t.off & flagAll
 	t.off = uint64(v) | flag
 }
 
