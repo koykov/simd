@@ -40,11 +40,7 @@ func (t *Tokenizer[T]) Next(b T) (r T) {
 		if off >= uint64(len(b)) {
 			return
 		}
-		var d uint64
-		if t.at() && p[off] == '@' {
-			d = 1
-		}
-		i = IndexAt(p, int(off+d))
+		i = IndexAt(p, int(off))
 		if i < 0 {
 			i = len(p)
 		}
