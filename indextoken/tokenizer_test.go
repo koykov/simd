@@ -292,7 +292,7 @@ func TestTokenizer(t *testing.T) {
 					var tkn Tokenizer[string]
 					var r []string
 					for {
-						if lo, hi := tkn.NextLH(stg.source); hi > 0 {
+						if lo, hi := tkn.NextLH(stg.source); hi > 0 && lo < hi {
 							r = append(r, stg.source[lo:hi])
 							continue
 						}
@@ -315,7 +315,7 @@ func TestTokenizer(t *testing.T) {
 					tkn.KeepSquareBrackets()
 					var r []string
 					for {
-						if lo, hi := tkn.NextLH(stg.source); hi > 0 {
+						if lo, hi := tkn.NextLH(stg.source); hi > 0 && lo < hi {
 							r = append(r, stg.source[lo:hi])
 							continue
 						}
@@ -338,7 +338,7 @@ func TestTokenizer(t *testing.T) {
 					tkn.KeepAt()
 					var r []string
 					for {
-						if lo, hi := tkn.NextLH(stg.source); hi > 0 {
+						if lo, hi := tkn.NextLH(stg.source); hi > 0 && lo < hi {
 							r = append(r, stg.source[lo:hi])
 							continue
 						}
@@ -362,7 +362,7 @@ func TestTokenizer(t *testing.T) {
 						KeepAt()
 					var r []string
 					for {
-						if lo, hi := tkn.NextLH(stg.source); hi > 0 {
+						if lo, hi := tkn.NextLH(stg.source); hi > 0 && lo < hi {
 							r = append(r, stg.source[lo:hi])
 							continue
 						}
