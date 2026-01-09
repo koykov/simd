@@ -3,5 +3,5 @@
 package bitwise64
 
 func merge(a, b []uint64) {
-	hammingGeneric(a, b)
+	mergeGeneric(a, b)
 }
