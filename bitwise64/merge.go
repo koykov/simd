@@ -17,7 +17,7 @@ func mergeGeneric(a, b []uint64) {
 	mn := minI(al, bl)
 	_, _ = a[al-1], b[bl-1]
 	for i := 0; i < mn; i++ {
-		a[i] = a[i] | b[i]
+		a[i] |= b[i]
 	}
 }
 
