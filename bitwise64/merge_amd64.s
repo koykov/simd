@@ -9,90 +9,87 @@ TEXT ·mergeSSE2(SB),NOSPLIT,$0-48
     TESTQ   CX, CX
     JZ      done                 // Check empty array case
 
-    // Calculate number of elements we can process with unrolling (CX / 4 * 4)
+    // Calculate number of elements we can process with unrolling
     MOVQ    CX, DX
-    SHRQ    $2, DX              // DX = number of 4-element groups
-    SHLQ    $2, DX              // DX *= 4 (now DX = len(a) & ^3)
-    JZ      tail                // If less than 4 elements, go to tail
+    SHRQ    $1, DX              // DX = number of 2-element groups
+    SHLQ    $1, DX              // DX = len(a) & ^1
+    JZ      scalar_tail         // If less than 2 elements, go to tail
 
-    // Main loop (4 elements per iteration)
+    // Main loop (2 elements per iteration)
 loop:
-    // Load 4 uint64 (32 bytes) from a and b
-    MOVOU   (SI), X0            // a[0], a[1]
-    MOVOU   (DI), X1            // b[0], b[1]
-    MOVOU   16(SI), X2          // a[2], a[3]
-    MOVOU   16(DI), X3          // b[2], b[3]
+    // Load 2 uint64 (16 bytes) from a and b
+    MOVOU   (SI), X0            // X0 = a[0], a[1]
+    MOVOU   (DI), X1            // X1 = b[0], b[1]
 
-    // OR + POPCNT for first two elements
-    POR     X1, X0              // X0 = a[0:1] | b[0:1]
+    // Apply bitwise OR
+    POR     X1, X0              // X0 = a[i] | b[i]
 
-    // First 64-bit element
-    MOVQ    X0, BX
-    POPCNTQ BX, BX
-    MOVQ    BX, (SI)            // Store result back to a[0]
+    // Save result back to a
+    MOVOU   X0, (SI)
 
-    // Second 64-bit element
-    PEXTRQ  $1, X0, BX
-    POPCNTQ BX, BX
-    MOVQ    BX, 8(SI)           // Store result back to a[1]
-
-    // OR + POPCNT for next two elements
-    POR     X3, X2              // X2 = a[2:3] | b[2:3]
-
-    // Third 64-bit element
-    MOVQ    X2, BX
-    POPCNTQ BX, BX
-    MOVQ    BX, 16(SI)          // Store result back to a[2]
-
-    // Fourth 64-bit element
-    PEXTRQ  $1, X2, BX
-    POPCNTQ BX, BX
-    MOVQ    BX, 24(SI)          // Store result back to a[3]
-
-    // Move to next group of 4 elements
-    ADDQ    $32, SI
-    ADDQ    $32, DI
-    SUBQ    $4, CX
-    CMPQ    CX, $4
-    JAE     loop
-
-tail:
-    // Process remaining elements (0..3)
-    TESTQ   CX, CX
-    JZ      done
-
-    // Process 2 elements (if >= 2 remaining)
-    CMPQ    CX, $2
-    JB      scalar_last
-
-    MOVOU   (SI), X0
-    MOVOU   (DI), X1
-    POR     X1, X0              // X0 = a[0:1] | b[0:1]
-
-    // First 64-bit element
-    MOVQ    X0, BX
-    POPCNTQ BX, BX
-    MOVQ    BX, (SI)
-
-    // Second 64-bit element
-    PEXTRQ  $1, X0, BX
-    POPCNTQ BX, BX
-    MOVQ    BX, 8(SI)
-
+    // Move to next group of 2 elements
     ADDQ    $16, SI
     ADDQ    $16, DI
     SUBQ    $2, CX
 
-scalar_last:
-    // Process last element (if odd count)
+    CMPQ    CX, $2
+    JAE     loop
+
+scalar_tail:
     TESTQ   CX, CX
     JZ      done
 
-    MOVQ    (SI), BX
-    MOVQ    (DI), DX
-    ORQ     DX, BX              // BX = a[i] | b[i]
-    POPCNTQ BX, BX
-    MOVQ    BX, (SI)            // Store result back to a[i]
+    MOVQ    (SI), AX
+    ORQ     (DI), AX
+    MOVQ    AX, (SI)
 
 done:
+    RET
+
+// func mergeAVX2(a, b []uint64)
+TEXT ·mergeAVX2(SB),NOSPLIT,$0-48
+    MOVQ    a_base+0(FP), SI     // SI = pointer to a[0]
+    MOVQ    b_base+24(FP), DI    // DI = pointer to b[0]
+    MOVQ    a_len+8(FP), CX      // CX = length of slices
+
+    TESTQ   CX, CX               // Check if length is zero
+    JZ      done                 // Return if empty
+
+    // Process 4 elements per iteration (YMM registers hold 4 uint64 = 32 bytes)
+    MOVQ    CX, DX               // DX = total element count
+    ANDQ    $0xFFFFFFFC, DX      // DX = count rounded down to multiple of 4
+    JZ      tail_scalar          // If less than 4 elements, handle in scalar loop
+
+    // Main AVX2 loop - process 4 uint64 elements per iteration
+avx_loop:
+    VMOVDQU (SI), Y0            // Load 4 elements from a: Y0 = a[0..3]
+    VMOVDQU (DI), Y1            // Load 4 elements from b: Y1 = b[0..3]
+
+    VPOR    Y0, Y1, Y0          // Y0 = a[i] OR b[i] for all 4 elements
+    VMOVDQU Y0, (SI)            // Store result back to a
+
+    ADDQ    $32, SI             // Move pointers forward by 32 bytes (4 elements)
+    ADDQ    $32, DI
+    SUBQ    $4, CX              // Decrease remaining element count
+    CMPQ    CX, $4              // Check if at least 4 elements remain
+    JGE     avx_loop            // Continue loop if yes
+
+    // Handle remaining elements (0-3)
+tail_scalar:
+    TESTQ   CX, CX              // Check if any elements remain
+    JZ      done                // Return if none
+
+    // Process remaining elements one by one
+scalar_loop:
+    MOVQ    (SI), AX            // Load element from a
+    ORQ     (DI), AX            // AX = a[i] | b[i]
+    MOVQ    AX, (SI)            // Store result back
+
+    ADDQ    $8, SI              // Move to next element
+    ADDQ    $8, DI
+    DECQ    CX                  // Decrement counter
+    JNZ     scalar_loop         // Continue if more elements
+
+done:
+    VZEROUPPER                  // Clear upper bits of YMM registers (AVX requirement)
     RET

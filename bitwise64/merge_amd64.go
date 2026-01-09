@@ -9,10 +9,10 @@ func init() {
 	// 	funcAMD64 = mergeAVX512
 	// 	return
 	// }
-	// if cpu.X86.HasAVX2 {
-	// 	funcAMD64 = mergeAVX2
-	// 	return
-	// }
+	if cpu.X86.HasAVX2 {
+		funcAMD64 = mergeAVX2
+		return
+	}
 	if cpu.X86.HasSSE2 {
 		funcAMD64 = mergeSSE2
 		return
@@ -27,8 +27,8 @@ func merge(a, b []uint64) {
 //go:noescape
 func mergeSSE2(a, b []uint64)
 
-// //go:noescape
-// func mergeAVX2(a, b []uint64)
-//
+//go:noescape
+func mergeAVX2(a, b []uint64)
+
 // //go:noescape
 // func mergeAVX512(a, b []uint64)
