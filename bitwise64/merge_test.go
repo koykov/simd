@@ -72,9 +72,9 @@ func TestMerge(t *testing.T) {
 	if cpu.X86.HasAVX2 {
 		t.Run("avx2", func(t *testing.T) { testfnMerge(t, mergeAVX2) })
 	}
-	// if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VPOPCNTDQ {
-	// 	t.Run("avx512", func(t *testing.T) { testfnMerge(t, mergeAVX512) })
-	// }
+	if cpu.X86.HasAVX512F {
+		t.Run("avx512", func(t *testing.T) { testfnMerge(t, mergeAVX512) })
+	}
 }
 
 func BenchmarkMerge(b *testing.B) {
@@ -85,7 +85,7 @@ func BenchmarkMerge(b *testing.B) {
 	if cpu.X86.HasAVX2 {
 		b.Run("avx2", func(b *testing.B) { benchfnMerge(b, mergeAVX2) })
 	}
-	// if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VPOPCNTDQ {
-	// 	b.Run("avx512", func(b *testing.B) { benchfnMerge(b, mergeAVX512) })
-	// }
+	if cpu.X86.HasAVX512F {
+		b.Run("avx512", func(b *testing.B) { benchfnMerge(b, mergeAVX512) })
+	}
 }

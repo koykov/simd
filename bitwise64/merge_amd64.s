@@ -93,3 +93,50 @@ scalar_loop:
 done:
     VZEROUPPER                  // Clear upper bits of YMM registers (AVX requirement)
     RET
+
+// func mergeAVX512(a, b []uint64)
+TEXT ·mergeAVX512(SB),NOSPLIT,$0-48
+    MOVQ    a_base+0(FP), SI     // SI = pointer to a[0]
+    MOVQ    b_base+24(FP), DI    // DI = pointer to b[0]
+    MOVQ    a_len+8(FP), CX      // CX = length of slices
+
+    TESTQ   CX, CX               // Check if length is zero
+    JZ      done                 // Return if empty
+
+    // Process 8 elements per iteration (ZMM registers hold 8 uint64 = 64 bytes)
+    MOVQ    CX, DX               // DX = total element count
+    ANDQ    $0xFFFFFFF8, DX      // DX = count rounded down to multiple of 8
+    JZ      tail_scalar          // If less than 8 elements, handle in scalar loop
+
+    // Main AVX512 loop - process 8 uint64 elements per iteration
+avx512_loop:
+    VMOVUPD (SI), Z0            // Load 8 elements from a: Z0 = a[0..7]
+    VMOVUPD (DI), Z1            // Load 8 elements from b: Z1 = b[0..7]
+
+    VPORQ   Z0, Z1, Z0          // Z0 = a[i] OR b[i] for all 8 elements
+    VMOVUPD Z0, (SI)            // Store result back to a
+
+    ADDQ    $64, SI             // Move pointers forward by 64 bytes (8 elements)
+    ADDQ    $64, DI
+    SUBQ    $8, CX              // Decrease remaining element count
+    CMPQ    CX, $8              // Check if at least 8 elements remain
+    JGE     avx512_loop         // Continue loop if yes
+
+    // Handle remaining elements (0-7)
+tail_scalar:
+    TESTQ   CX, CX              // Check if any elements remain
+    JZ      done                // Return if none
+
+    // Process remaining elements one by one
+scalar_loop:
+    MOVQ    (SI), AX            // Load element from a
+    ORQ     (DI), AX            // AX = a[i] | b[i]
+    MOVQ    AX, (SI)            // Store result back
+
+    ADDQ    $8, SI              // Move to next element
+    ADDQ    $8, DI
+    DECQ    CX                  // Decrement counter
+    JNZ     scalar_loop         // Continue if more elements
+
+done:
+    RET
