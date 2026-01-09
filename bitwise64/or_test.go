@@ -8,12 +8,12 @@ import (
 	"golang.org/x/sys/cpu"
 )
 
-type stageMerge struct {
+type stageOr struct {
 	a, b []uint64
 	res  int
 }
 
-var stagesMerge []stageMerge
+var stagesOr []stageOr
 
 func init() {
 	for i := 10; i < 1e7; i *= 10 {
@@ -29,13 +29,13 @@ func init() {
 			}
 			res += 64
 		}
-		stagesMerge = append(stagesMerge, stageMerge{a, b, res})
+		stagesOr = append(stagesOr, stageOr{a, b, res})
 	}
 }
 
-func testfnMerge(t *testing.T, fn func([]uint64, []uint64)) {
-	for i := 0; i < len(stagesMerge); i++ {
-		st := &stagesMerge[i]
+func testfnOr(t *testing.T, fn func([]uint64, []uint64)) {
+	for i := 0; i < len(stagesOr); i++ {
+		st := &stagesOr[i]
 		t.Run(strconv.Itoa(len(st.a)), func(t *testing.T) {
 			cpy := make([]uint64, len(st.a))
 			copy(cpy, st.a)
@@ -51,9 +51,9 @@ func testfnMerge(t *testing.T, fn func([]uint64, []uint64)) {
 	}
 }
 
-func benchfnMerge(b *testing.B, fn func([]uint64, []uint64)) {
-	for i := 0; i < len(stagesMerge); i++ {
-		st := &stagesMerge[i]
+func benchfnOr(b *testing.B, fn func([]uint64, []uint64)) {
+	for i := 0; i < len(stagesOr); i++ {
+		st := &stagesOr[i]
 		b.Run(strconv.Itoa(len(st.a)), func(b *testing.B) {
 			b.SetBytes(int64(len(st.a)) * 2 * 8)
 			b.ReportAllocs()
@@ -64,28 +64,28 @@ func benchfnMerge(b *testing.B, fn func([]uint64, []uint64)) {
 	}
 }
 
-func TestMerge(t *testing.T) {
-	t.Run("generic", func(t *testing.T) { testfnMerge(t, mergeGeneric) })
+func TestOr(t *testing.T) {
+	t.Run("generic", func(t *testing.T) { testfnOr(t, orGeneric) })
 	if cpu.X86.HasSSE2 {
-		t.Run("sse2", func(t *testing.T) { testfnMerge(t, mergeSSE2) })
+		t.Run("sse2", func(t *testing.T) { testfnOr(t, orSSE2) })
 	}
 	if cpu.X86.HasAVX2 {
-		t.Run("avx2", func(t *testing.T) { testfnMerge(t, mergeAVX2) })
+		t.Run("avx2", func(t *testing.T) { testfnOr(t, orAVX2) })
 	}
 	if cpu.X86.HasAVX512F {
-		t.Run("avx512", func(t *testing.T) { testfnMerge(t, mergeAVX512) })
+		t.Run("avx512", func(t *testing.T) { testfnOr(t, orAVX512) })
 	}
 }
 
-func BenchmarkMerge(b *testing.B) {
-	b.Run("generic", func(b *testing.B) { benchfnMerge(b, mergeGeneric) })
+func BenchmarkOr(b *testing.B) {
+	b.Run("generic", func(b *testing.B) { benchfnOr(b, orGeneric) })
 	if cpu.X86.HasSSE2 {
-		b.Run("sse2", func(b *testing.B) { benchfnMerge(b, mergeSSE2) })
+		b.Run("sse2", func(b *testing.B) { benchfnOr(b, orSSE2) })
 	}
 	if cpu.X86.HasAVX2 {
-		b.Run("avx2", func(b *testing.B) { benchfnMerge(b, mergeAVX2) })
+		b.Run("avx2", func(b *testing.B) { benchfnOr(b, orAVX2) })
 	}
 	if cpu.X86.HasAVX512F {
-		b.Run("avx512", func(b *testing.B) { benchfnMerge(b, mergeAVX512) })
+		b.Run("avx512", func(b *testing.B) { benchfnOr(b, orAVX512) })
 	}
 }

@@ -1,7 +1,7 @@
 #include "textflag.h"
 
-// func mergeSSE2(a, b []uint64)
-TEXT ·mergeSSE2(SB),NOSPLIT,$0-48
+// func orSSE2(a, b []uint64)
+TEXT ·orSSE2(SB),NOSPLIT,$0-48
     MOVQ    a_base+0(FP), SI     // SI = &a[0]
     MOVQ    b_base+24(FP), DI    // DI = &b[0]
     MOVQ    a_len+8(FP), CX      // CX = len(a)
@@ -46,8 +46,8 @@ scalar_tail:
 done:
     RET
 
-// func mergeAVX2(a, b []uint64)
-TEXT ·mergeAVX2(SB),NOSPLIT,$0-48
+// func orAVX2(a, b []uint64)
+TEXT ·orAVX2(SB),NOSPLIT,$0-48
     MOVQ    a_base+0(FP), SI     // SI = pointer to a[0]
     MOVQ    b_base+24(FP), DI    // DI = pointer to b[0]
     MOVQ    a_len+8(FP), CX      // CX = length of slices
@@ -94,8 +94,8 @@ done:
     VZEROUPPER                  // Clear upper bits of YMM registers (AVX requirement)
     RET
 
-// func mergeAVX512(a, b []uint64)
-TEXT ·mergeAVX512(SB),NOSPLIT,$0-48
+// func orAVX512(a, b []uint64)
+TEXT ·orAVX512(SB),NOSPLIT,$0-48
     MOVQ    a_base+0(FP), SI     // SI = pointer to a[0]
     MOVQ    b_base+24(FP), DI    // DI = pointer to b[0]
     MOVQ    a_len+8(FP), CX      // CX = length of slices

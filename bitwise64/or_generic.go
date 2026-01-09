@@ -2,6 +2,6 @@
 
 package bitwise64
 
-func merge(a, b []uint64) {
-	mergeGeneric(a, b)
+func or(a, b []uint64) {
+	orGeneric(a, b)
 }

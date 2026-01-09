@@ -2,17 +2,17 @@ package bitwise64
 
 import "errors"
 
-func Merge(a, b []uint64) error {
+func Or(a, b []uint64) error {
 	al, bl := len(a), len(b)
 	if bl > al {
-		return ErrMergeLTE
+		return ErrOrLTE
 	}
 	mn := minI(al, bl)
-	merge(a[:mn], b[:mn])
+	or(a[:mn], b[:mn])
 	return nil
 }
 
-func mergeGeneric(a, b []uint64) {
+func orGeneric(a, b []uint64) {
 	al, bl := len(a), len(b)
 	mn := minI(al, bl)
 	_, _ = a[al-1], b[bl-1]
@@ -28,4 +28,4 @@ func minI(a, b int) int {
 	return b
 }
 
-var ErrMergeLTE = errors.New("length of second array must be less or equal to primary")
+var ErrOrLTE = errors.New("length of second array must be less or equal to primary")
