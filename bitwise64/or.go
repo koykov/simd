@@ -1,15 +1,9 @@
 package bitwise64
 
-import "errors"
-
-func Or(a, b []uint64) error {
+func Or(a, b []uint64) {
 	al, bl := len(a), len(b)
-	if bl > al {
-		return ErrOrLTE
-	}
 	mn := minI(al, bl)
 	or(a[:mn], b[:mn])
-	return nil
 }
 
 func orGeneric(a, b []uint64) {
@@ -27,5 +21,3 @@ func minI(a, b int) int {
 	}
 	return b
 }
-
-var ErrOrLTE = errors.New("length of second array must be less or equal to primary")
