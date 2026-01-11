@@ -2,26 +2,26 @@ package bitwise64
 
 import "golang.org/x/sys/cpu"
 
-var funcAMD64 func([]uint64, []uint64)
+var funcOrAMD64 func([]uint64, []uint64)
 
 func init() {
 	if cpu.X86.HasAVX512F {
-		funcAMD64 = orAVX512
+		funcOrAMD64 = orAVX512
 		return
 	}
 	if cpu.X86.HasAVX2 {
-		funcAMD64 = orAVX2
+		funcOrAMD64 = orAVX2
 		return
 	}
 	if cpu.X86.HasSSE2 {
-		funcAMD64 = orSSE2
+		funcOrAMD64 = orSSE2
 		return
 	}
-	funcAMD64 = orGeneric
+	funcOrAMD64 = orGeneric
 }
 
 func or(a, b []uint64) {
-	funcAMD64(a, b)
+	funcOrAMD64(a, b)
 }
 
 //go:noescape

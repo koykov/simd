@@ -31,7 +31,7 @@ func AndBytes(a, b []byte) {
 	mn = minI(len(a), len(b))
 	var i int
 	for i = 0; i < mn; i++ {
-		a[i] |= b[i]
+		a[i] &= b[i]
 	}
 }
 
