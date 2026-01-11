@@ -104,7 +104,9 @@ TEXT ·notAVX512(SB),NOSPLIT,$0-32
     JZ      done                 // Return if empty
 
     // Create mask with all bits set (0xFFFFFFFFFFFFFFFF) in ZMM register
-    VPCMPEQB Z2, Z2, Z2         // Z2 = all ones (0xFFFFFFFFFFFFFFFF)
+    MOVQ    $-1, AX             // AX = 0xFFFFFFFFFFFFFFFF
+    MOVQ    AX, X2              // X2 = all ones
+    VPBROADCASTQ X2, Z2         // Broadcast 64-bit value to all 8 elements of Z2
 
     // Process 8 elements per iteration (ZMM registers hold 8 uint64 = 64 bytes)
     MOVQ    CX, DX               // DX = total element count
