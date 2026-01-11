@@ -50,3 +50,5 @@ func minI(a, b int) int {
 	}
 	return b
 }
+
+var _ = Or

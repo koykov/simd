@@ -2,13 +2,13 @@ package bitwise64
 
 import "unsafe"
 
-func And(a, b []uint64) {
+func Xor(a, b []uint64) {
 	al, bl := len(a), len(b)
 	mn := minI(al, bl)
-	and(a[:mn], b[:mn])
+	xor(a[:mn], b[:mn])
 }
 
-func AndBytes(a, b []byte) {
+func XorBytes(a, b []byte) {
 	al, bl := len(a), len(b)
 	mn := minI(al, bl)
 	var mn8 int
@@ -24,24 +24,24 @@ func AndBytes(a, b []byte) {
 		a64 := *(*[]uint64)(unsafe.Pointer(&ah))
 		bh := sh{p: uintptr(unsafe.Pointer(&b[0])), l: mn, c: mn}
 		b64 := *(*[]uint64)(unsafe.Pointer(&bh))
-		and(a64, b64)
+		xor(a64, b64)
 	}
 
 	a, b = a[mn8:], b[mn8:]
 	mn = minI(len(a), len(b))
 	var i int
 	for i = 0; i < mn; i++ {
-		a[i] &= b[i]
+		a[i] ^= b[i]
 	}
 }
 
-func andGeneric(a, b []uint64) {
+func xorGeneric(a, b []uint64) {
 	al, bl := len(a), len(b)
 	mn := minI(al, bl)
 	_, _ = a[al-1], b[bl-1]
 	for i := 0; i < mn; i++ {
-		a[i] &= b[i]
+		a[i] ^= b[i]
 	}
 }
 
-var _ = And
+var _ = Xor
