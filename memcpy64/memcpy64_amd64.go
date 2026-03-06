@@ -9,10 +9,10 @@ func init() {
 	// 	funcAMD64 = memcpyAVX512
 	// 	return
 	// }
-	// if cpu.X86.HasAVX2 {
-	// 	funcAMD64 = memcpyAVX2
-	// 	return
-	// }
+	if cpu.X86.HasAVX2 {
+		funcAMD64 = memcpyAVX2
+		return
+	}
 	if cpu.X86.HasSSE2 {
 		funcAMD64 = memcpySSE2
 		return
@@ -27,8 +27,8 @@ func memcpy64(dst, src []uint64) {
 //go:noescape
 func memcpySSE2([]uint64, []uint64)
 
-// //go:noescape
-// func memcpyAVX2([]uint64, []uint64)
-//
+//go:noescape
+func memcpyAVX2([]uint64, []uint64)
+
 // //go:noescape
 // func memcpyAVX512([]uint64, []uint64)
