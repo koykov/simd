@@ -8,7 +8,7 @@ import (
 	"golang.org/x/sys/cpu"
 )
 
-func TestMemclr64(t *testing.T) {
+func TestMemcpy64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, memcpy64Generic) })
 	if cpu.X86.HasSSE2 {
 		t.Run("sse2", func(t *testing.T) { testfn(t, memcpySSE2) })
@@ -21,7 +21,7 @@ func TestMemclr64(t *testing.T) {
 	}
 }
 
-func BenchmarkMemclr64(b *testing.B) {
+func BenchmarkMemcpy64(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, memcpy64Generic) })
 	if cpu.X86.HasSSE2 {
 		b.Run("sse2", func(b *testing.B) { benchfn(b, memcpySSE2) })
