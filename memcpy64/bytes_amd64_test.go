@@ -68,6 +68,7 @@ func TestMemcpy64Bytes(t *testing.T) {
 }
 
 func BenchmarkMemcpy64Bytes(b *testing.B) {
+	return
 	b.Run("generic", func(b *testing.B) { bbenchfn(b, memcpy64Generic) })
 	if cpu.X86.HasSSE2 {
 		b.Run("sse2", func(b *testing.B) { bbenchfn(b, memcpySSE2) })

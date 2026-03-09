@@ -6,6 +6,7 @@ import (
 	"math"
 	"strconv"
 	"testing"
+	"unsafe"
 
 	"golang.org/x/sys/cpu"
 )
@@ -65,6 +66,22 @@ func TestMemcpy64(t *testing.T) {
 	if cpu.X86.HasAVX512F {
 		t.Run("avx512", func(t *testing.T) { testfn(t, memcpyAVX512) })
 	}
+	t.Run("memmove avx512", func(t *testing.T) {
+		for i := 0; i < len(stages); i++ {
+			st := stages[i]
+			if len(st.src) == 0 {
+				continue
+			}
+			t.Run(strconv.Itoa(len(st.dst)), func(t *testing.T) {
+				memmoveAVX512(unsafe.Pointer(&st.dst[0]), unsafe.Pointer(&st.src[0]), uintptr(len(st.src)))
+				for j := 0; j < len(st.src); j++ {
+					if st.dst[j] != st.src[j] {
+						t.Errorf("mismatch found, position %d", j)
+					}
+				}
+			})
+		}
+	})
 }
 
 func BenchmarkMemcpy64(b *testing.B) {
@@ -78,4 +95,19 @@ func BenchmarkMemcpy64(b *testing.B) {
 	if cpu.X86.HasAVX512F {
 		b.Run("avx512", func(b *testing.B) { benchfn(b, memcpyAVX512) })
 	}
+	b.Run("memmove avx512", func(b *testing.B) {
+		for i := 0; i < len(stages); i++ {
+			st := stages[i]
+			if len(st.src) == 0 {
+				continue
+			}
+			b.Run(strconv.Itoa(len(st.dst)), func(b *testing.B) {
+				b.ReportAllocs()
+				b.SetBytes(int64(len(st.dst) * 8))
+				for j := 0; j < b.N; j++ {
+					memmoveAVX512(unsafe.Pointer(&st.dst[0]), unsafe.Pointer(&st.src[0]), uintptr(len(st.src)))
+				}
+			})
+		}
+	})
 }

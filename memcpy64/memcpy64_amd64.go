@@ -1,6 +1,10 @@
 package memcpy64
 
-import "golang.org/x/sys/cpu"
+import (
+	"unsafe"
+
+	"golang.org/x/sys/cpu"
+)
 
 var funcAMD64 func([]uint64, []uint64)
 
@@ -32,3 +36,6 @@ func memcpyAVX2([]uint64, []uint64)
 
 //go:noescape
 func memcpyAVX512([]uint64, []uint64)
+
+//go:noescape
+func memmoveAVX512(to, from unsafe.Pointer, n uintptr)
