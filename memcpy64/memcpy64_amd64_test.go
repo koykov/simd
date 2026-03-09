@@ -6,7 +6,6 @@ import (
 	"math"
 	"strconv"
 	"testing"
-	"unsafe"
 
 	"golang.org/x/sys/cpu"
 )
@@ -57,57 +56,14 @@ func benchfn(b *testing.B, fn func([]uint64, []uint64)) {
 
 func TestMemcpy64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, memcpy64Generic) })
-	if cpu.X86.HasSSE2 {
-		t.Run("sse2", func(t *testing.T) { testfn(t, memcpySSE2) })
-	}
-	if cpu.X86.HasAVX2 {
-		t.Run("avx2", func(t *testing.T) { testfn(t, memcpyAVX2) })
-	}
 	if cpu.X86.HasAVX512F {
 		t.Run("avx512", func(t *testing.T) { testfn(t, memcpyAVX512) })
 	}
-	t.Run("memmove avx512", func(t *testing.T) {
-		for i := 0; i < len(stages); i++ {
-			st := stages[i]
-			if len(st.src) == 0 {
-				continue
-			}
-			t.Run(strconv.Itoa(len(st.dst)), func(t *testing.T) {
-				memmoveAVX512(unsafe.Pointer(&st.dst[0]), unsafe.Pointer(&st.src[0]), uintptr(len(st.src)))
-				for j := 0; j < len(st.src); j++ {
-					if st.dst[j] != st.src[j] {
-						t.Errorf("mismatch found, position %d", j)
-					}
-				}
-			})
-		}
-	})
 }
 
 func BenchmarkMemcpy64(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, memcpy64Generic) })
-	if cpu.X86.HasSSE2 {
-		b.Run("sse2", func(b *testing.B) { benchfn(b, memcpySSE2) })
-	}
-	if cpu.X86.HasAVX2 {
-		b.Run("avx2", func(b *testing.B) { benchfn(b, memcpyAVX2) })
-	}
 	if cpu.X86.HasAVX512F {
 		b.Run("avx512", func(b *testing.B) { benchfn(b, memcpyAVX512) })
 	}
-	b.Run("memmove avx512", func(b *testing.B) {
-		for i := 0; i < len(stages); i++ {
-			st := stages[i]
-			if len(st.src) == 0 {
-				continue
-			}
-			b.Run(strconv.Itoa(len(st.dst)), func(b *testing.B) {
-				b.ReportAllocs()
-				b.SetBytes(int64(len(st.dst) * 8))
-				for j := 0; j < b.N; j++ {
-					memmoveAVX512(unsafe.Pointer(&st.dst[0]), unsafe.Pointer(&st.src[0]), uintptr(len(st.src)))
-				}
-			})
-		}
-	})
 }

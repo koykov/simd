@@ -13,14 +13,6 @@ func init() {
 		funcAMD64 = memcpyAVX512
 		return
 	}
-	if cpu.X86.HasAVX2 {
-		funcAMD64 = memcpyAVX2
-		return
-	}
-	if cpu.X86.HasSSE2 {
-		funcAMD64 = memcpySSE2
-		return
-	}
 	funcAMD64 = memcpy64Generic
 }
 
@@ -28,14 +20,13 @@ func memcpy64(dst, src []uint64) {
 	funcAMD64(dst, src)
 }
 
-//go:noescape
-func memcpySSE2([]uint64, []uint64)
+func memcpyAVX512(dst, src []uint64) {
+	n := uintptr(len(src))
+	if n == 0 || len(dst) == 0 {
+		return
+	}
+	memmoveAVX512(unsafe.Pointer(&dst[0]), unsafe.Pointer(&src[0]), n)
+}
 
 //go:noescape
-func memcpyAVX2([]uint64, []uint64)
-
-//go:noescape
-func memcpyAVX512([]uint64, []uint64)
-
-//go:noescape
-func memmoveAVX512(to, from unsafe.Pointer, n uintptr)
+func memmoveAVX512(dst, src unsafe.Pointer, n uintptr)

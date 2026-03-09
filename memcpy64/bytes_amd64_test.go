@@ -56,26 +56,13 @@ func bbenchfn(b *testing.B, fn func([]uint64, []uint64)) {
 
 func TestMemcpy64Bytes(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { btestfn(t, memcpy64Generic) })
-	if cpu.X86.HasSSE2 {
-		t.Run("sse2", func(t *testing.T) { btestfn(t, memcpySSE2) })
-	}
-	if cpu.X86.HasAVX2 {
-		t.Run("avx2", func(t *testing.T) { btestfn(t, memcpyAVX2) })
-	}
 	if cpu.X86.HasAVX512F {
 		t.Run("avx512", func(t *testing.T) { btestfn(t, memcpyAVX512) })
 	}
 }
 
 func BenchmarkMemcpy64Bytes(b *testing.B) {
-	return
 	b.Run("generic", func(b *testing.B) { bbenchfn(b, memcpy64Generic) })
-	if cpu.X86.HasSSE2 {
-		b.Run("sse2", func(b *testing.B) { bbenchfn(b, memcpySSE2) })
-	}
-	if cpu.X86.HasAVX2 {
-		b.Run("avx2", func(b *testing.B) { bbenchfn(b, memcpyAVX2) })
-	}
 	if cpu.X86.HasAVX512F {
 		b.Run("avx512", func(b *testing.B) { bbenchfn(b, memcpyAVX512) })
 	}
