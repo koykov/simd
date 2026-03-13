@@ -17,7 +17,7 @@ type stage struct {
 var stages []stage
 
 func init() {
-	for i := 1; i < 1e10; i *= 10 {
+	for i := 1; i < 1e9; i *= 10 {
 		src := make([]uint64, i-1)
 		for j := 0; j < len(src)-1; j++ {
 			src[j] = math.MaxUint64
@@ -56,14 +56,14 @@ func benchfn(b *testing.B, fn func([]uint64, []uint64)) {
 
 func TestMemcpy64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, memcpy64Generic) })
-	if cpu.X86.HasAVX512F {
+	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL {
 		t.Run("avx512", func(t *testing.T) { testfn(t, memcpyAVX512) })
 	}
 }
 
 func BenchmarkMemcpy64(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, memcpy64Generic) })
-	if cpu.X86.HasAVX512F {
+	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL {
 		b.Run("avx512", func(b *testing.B) { benchfn(b, memcpyAVX512) })
 	}
 }

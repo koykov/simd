@@ -9,7 +9,7 @@ import (
 var funcAMD64 func([]uint64, []uint64)
 
 func init() {
-	if cpu.X86.HasAVX512F {
+	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL {
 		funcAMD64 = memcpyAVX512
 		return
 	}
