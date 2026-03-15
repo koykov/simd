@@ -31,7 +31,7 @@ func TestMemset(t *testing.T) {
 	}
 }
 
-func BenchmarkDistance(b *testing.B) {
+func BenchmarkMemset(b *testing.B) {
 	for i := 0; i < len(bstages); i++ {
 		st := bstages[i]
 		b.Run(strconv.Itoa(len(st)), func(b *testing.B) {
