@@ -34,7 +34,7 @@ func testfn(t *testing.T, stages []stage, fn func([]uint64, []uint64)) {
 	}
 }
 
-func testfnBytes(t *testing.T, stages []bstage, fn func([]byte, []byte)) {
+func btestfn(t *testing.T, stages []bstage, fn func([]byte, []byte)) {
 	for i := 0; i < len(stages); i++ {
 		st := &stages[i]
 		t.Run(strconv.Itoa(len(st.a)), func(t *testing.T) {
@@ -65,7 +65,7 @@ func benchfn(b *testing.B, stages []stage, fn func([]uint64, []uint64)) {
 	}
 }
 
-func benchfnBytes(b *testing.B, stages []bstage, fn func([]byte, []byte)) {
+func bbenchfn(b *testing.B, stages []bstage, fn func([]byte, []byte)) {
 	for i := 0; i < len(stages); i++ {
 		st := &stages[i]
 		b.Run(strconv.Itoa(len(st.a)), func(b *testing.B) {

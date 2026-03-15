@@ -27,7 +27,7 @@ func init() {
 	}
 }
 
-func TestDistanceBytes(t *testing.T) {
+func TestDistance(t *testing.T) {
 	for i := 0; i < len(bstages); i++ {
 		st := &bstages[i]
 		t.Run(strconv.Itoa(len(st.a)), func(t *testing.T) {
@@ -39,7 +39,7 @@ func TestDistanceBytes(t *testing.T) {
 	}
 }
 
-func BenchmarkDistanceBytes(b *testing.B) {
+func BenchmarkDistance(b *testing.B) {
 	for i := 0; i < len(bstages); i++ {
 		st := &bstages[i]
 		b.Run(strconv.Itoa(len(st.a)), func(b *testing.B) {

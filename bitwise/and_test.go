@@ -44,7 +44,7 @@ func init() {
 	}
 }
 
-func TestAnd(t *testing.T) {
+func TestAnd64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, stagesAnd, andGeneric) })
 	if cpu.X86.HasSSE2 {
 		t.Run("sse2", func(t *testing.T) { testfn(t, stagesAnd, andSSE2) })
@@ -57,11 +57,11 @@ func TestAnd(t *testing.T) {
 	}
 }
 
-func TestAndBytes(t *testing.T) {
-	testfnBytes(t, bstagesAnd, And)
+func TestAnd(t *testing.T) {
+	btestfn(t, bstagesAnd, And)
 }
 
-func BenchmarkAnd(b *testing.B) {
+func BenchmarkAnd64(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, stagesAnd, andGeneric) })
 	if cpu.X86.HasSSE2 {
 		b.Run("sse2", func(b *testing.B) { benchfn(b, stagesAnd, andSSE2) })
@@ -74,6 +74,6 @@ func BenchmarkAnd(b *testing.B) {
 	}
 }
 
-func BenchmarkAndBytes(b *testing.B) {
-	benchfnBytes(b, bstagesAnd, And)
+func BenchmarkAnd(b *testing.B) {
+	bbenchfn(b, bstagesAnd, And)
 }

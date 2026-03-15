@@ -54,14 +54,14 @@ func bbenchfn(b *testing.B, fn func([]uint64, []uint64)) {
 	}
 }
 
-func TestMemcpy64Bytes(t *testing.T) {
+func TestCopy(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { btestfn(t, memcpy64Generic) })
 	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL {
 		t.Run("avx512", func(t *testing.T) { btestfn(t, memcpyAVX512) })
 	}
 }
 
-func BenchmarkMemcpy64Bytes(b *testing.B) {
+func BenchmarkCopy(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { bbenchfn(b, memcpy64Generic) })
 	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL {
 		b.Run("avx512", func(b *testing.B) { bbenchfn(b, memcpyAVX512) })

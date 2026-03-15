@@ -40,7 +40,7 @@ func init() {
 	}
 }
 
-func TestNot(t *testing.T) {
+func TestNot64(t *testing.T) {
 	testfnNot := func(t *testing.T, stages []stage, fn func([]uint64)) {
 		for i := 0; i < len(stages); i++ {
 			st := &stages[i]
@@ -70,8 +70,8 @@ func TestNot(t *testing.T) {
 	}
 }
 
-func TestNotBytes(t *testing.T) {
-	testfnNotBytes := func(t *testing.T, stages []bstage, fn func([]byte)) {
+func TestNot(t *testing.T) {
+	btestfnNot := func(t *testing.T, stages []bstage, fn func([]byte)) {
 		for i := 0; i < len(stages); i++ {
 			st := &stages[i]
 			t.Run(strconv.Itoa(len(st.a)), func(t *testing.T) {
@@ -88,10 +88,10 @@ func TestNotBytes(t *testing.T) {
 			})
 		}
 	}
-	testfnNotBytes(t, bstagesNot, Not)
+	btestfnNot(t, bstagesNot, Not)
 }
 
-func BenchmarkNot(b *testing.B) {
+func BenchmarkNot64(b *testing.B) {
 	benchfnNot := func(b *testing.B, stages []stage, fn func([]uint64)) {
 		for i := 0; i < len(stages); i++ {
 			st := &stages[i]
@@ -116,8 +116,8 @@ func BenchmarkNot(b *testing.B) {
 	}
 }
 
-func BenchmarkNotBytes(b *testing.B) {
-	benchfnNotBytes := func(b *testing.B, stages []bstage, fn func([]byte)) {
+func BenchmarkNot(b *testing.B) {
+	bbenchfnNot := func(b *testing.B, stages []bstage, fn func([]byte)) {
 		for i := 0; i < len(stages); i++ {
 			st := &stages[i]
 			b.Run(strconv.Itoa(len(st.a)), func(b *testing.B) {
@@ -129,5 +129,5 @@ func BenchmarkNotBytes(b *testing.B) {
 			})
 		}
 	}
-	benchfnNotBytes(b, bstagesNot, Not)
+	bbenchfnNot(b, bstagesNot, Not)
 }

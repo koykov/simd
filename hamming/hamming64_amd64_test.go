@@ -8,7 +8,7 @@ import (
 	"golang.org/x/sys/cpu"
 )
 
-func TestDistance(t *testing.T) {
+func TestDistance64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, hammingGeneric) })
 	if cpu.X86.HasSSE2 {
 		t.Run("sse2", func(t *testing.T) { testfn(t, hammingSSE2) })
@@ -21,7 +21,7 @@ func TestDistance(t *testing.T) {
 	}
 }
 
-func BenchmarkDistance(b *testing.B) {
+func BenchmarkDistance64(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, hammingGeneric) })
 	if cpu.X86.HasSSE2 {
 		b.Run("sse2", func(b *testing.B) { benchfn(b, hammingSSE2) })

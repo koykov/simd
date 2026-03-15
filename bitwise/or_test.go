@@ -44,7 +44,7 @@ func init() {
 	}
 }
 
-func TestOr(t *testing.T) {
+func TestOr64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, stagesOr, orGeneric) })
 	if cpu.X86.HasSSE2 {
 		t.Run("sse2", func(t *testing.T) { testfn(t, stagesOr, orSSE2) })
@@ -57,11 +57,11 @@ func TestOr(t *testing.T) {
 	}
 }
 
-func TestOrBytes(t *testing.T) {
-	testfnBytes(t, bstagesOr, Or)
+func TestOr(t *testing.T) {
+	btestfn(t, bstagesOr, Or)
 }
 
-func BenchmarkOr(b *testing.B) {
+func BenchmarkOr64(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, stagesOr, orGeneric) })
 	if cpu.X86.HasSSE2 {
 		b.Run("sse2", func(b *testing.B) { benchfn(b, stagesOr, orSSE2) })
@@ -74,6 +74,6 @@ func BenchmarkOr(b *testing.B) {
 	}
 }
 
-func BenchmarkOrBytes(b *testing.B) {
-	benchfnBytes(b, bstagesOr, Or)
+func BenchmarkOr(b *testing.B) {
+	bbenchfn(b, bstagesOr, Or)
 }

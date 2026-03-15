@@ -44,7 +44,7 @@ func init() {
 	}
 }
 
-func TestXor(t *testing.T) {
+func TestXor64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, stagesXor, andGeneric) })
 	if cpu.X86.HasSSE2 {
 		t.Run("sse2", func(t *testing.T) { testfn(t, stagesXor, andSSE2) })
@@ -57,11 +57,11 @@ func TestXor(t *testing.T) {
 	}
 }
 
-func TestXorBytes(t *testing.T) {
-	testfnBytes(t, bstagesXor, Xor)
+func TestXor(t *testing.T) {
+	btestfn(t, bstagesXor, Xor)
 }
 
-func BenchmarkXor(b *testing.B) {
+func BenchmarkXor64(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, stagesXor, andGeneric) })
 	if cpu.X86.HasSSE2 {
 		b.Run("sse2", func(b *testing.B) { benchfn(b, stagesXor, andSSE2) })
@@ -74,6 +74,6 @@ func BenchmarkXor(b *testing.B) {
 	}
 }
 
-func BenchmarkXorBytes(b *testing.B) {
-	benchfnBytes(b, bstagesXor, Xor)
+func BenchmarkXor(b *testing.B) {
+	bbenchfn(b, bstagesXor, Xor)
 }

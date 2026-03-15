@@ -8,7 +8,7 @@ import (
 	"golang.org/x/sys/cpu"
 )
 
-func TestPopcnt64(t *testing.T) {
+func TestCount64(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { testfn(t, countGeneric) })
 	if cpu.X86.HasSSE2 {
 		t.Run("sse2", func(t *testing.T) { testfn(t, countSSE2) })
@@ -21,7 +21,7 @@ func TestPopcnt64(t *testing.T) {
 	}
 }
 
-func BenchmarkPopcnt64(b *testing.B) {
+func BenchmarkCount64(b *testing.B) {
 	b.Run("generic", func(b *testing.B) { benchfn(b, countGeneric) })
 	if cpu.X86.HasSSE2 {
 		b.Run("sse2", func(b *testing.B) { benchfn(b, countSSE2) })
