@@ -1,0 +1,79 @@
+package bitwise
+
+import (
+	"testing"
+
+	"golang.org/x/sys/cpu"
+)
+
+var (
+	stagesXor  []stage
+	bstagesXor []bstage
+)
+
+func init() {
+	for i := 10; i < 1e7; i *= 10 {
+		a := make([]uint64, i)
+		b := make([]uint64, i)
+		var res int
+		for j := 0; j < i; j++ {
+			for k := uint64(0); k < 48; k++ {
+				a[j] |= 1 << k
+			}
+			for k := uint64(16); k < 64; k++ {
+				b[j] |= 1 << k
+			}
+			res += 32
+		}
+		stagesXor = append(stagesXor, stage{a, b, res})
+	}
+	for i := 10; i < 1e9; i *= 10 {
+		a := make([]byte, i)
+		b := make([]byte, i)
+		var res int
+		for j := 0; j < i; j++ {
+			for k := byte(0); k < 6; k++ {
+				a[j] |= 1 << k
+			}
+			for k := byte(2); k < 8; k++ {
+				b[j] |= 1 << k
+			}
+			res += 4
+		}
+		bstagesXor = append(bstagesXor, bstage{a, b, res})
+	}
+}
+
+func TestXor(t *testing.T) {
+	t.Run("generic", func(t *testing.T) { testfn(t, stagesXor, andGeneric) })
+	if cpu.X86.HasSSE2 {
+		t.Run("sse2", func(t *testing.T) { testfn(t, stagesXor, andSSE2) })
+	}
+	if cpu.X86.HasAVX2 {
+		t.Run("avx2", func(t *testing.T) { testfn(t, stagesXor, andAVX2) })
+	}
+	if cpu.X86.HasAVX512F {
+		t.Run("avx512", func(t *testing.T) { testfn(t, stagesXor, andAVX512) })
+	}
+}
+
+func TestXorBytes(t *testing.T) {
+	testfnBytes(t, bstagesXor, Xor)
+}
+
+func BenchmarkXor(b *testing.B) {
+	b.Run("generic", func(b *testing.B) { benchfn(b, stagesXor, andGeneric) })
+	if cpu.X86.HasSSE2 {
+		b.Run("sse2", func(b *testing.B) { benchfn(b, stagesXor, andSSE2) })
+	}
+	if cpu.X86.HasAVX2 {
+		b.Run("avx2", func(b *testing.B) { benchfn(b, stagesXor, andAVX2) })
+	}
+	if cpu.X86.HasAVX512F {
+		b.Run("avx512", func(b *testing.B) { benchfn(b, stagesXor, andAVX512) })
+	}
+}
+
+func BenchmarkXorBytes(b *testing.B) {
+	benchfnBytes(b, bstagesXor, Xor)
+}
