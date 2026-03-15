@@ -1,16 +1,16 @@
-# Memcpy64
+# Memcpy
 
-Vectorised memory copying of array of uint64 number.
+Vectorised memory copying of array of bytes or uint64 numbers.
 
 ## Usage
 
 The minimal working example:
 ```go
-import "github.com/koykov/simd/memcpy64"
+import "github.com/koykov/simd/memcpy"
 
 var a = []uint64{0xFFFFFFFFFFFFFFFF, ..., 0xFFFFFFFFFFFFFFFF} // very big slice
 dst := make([]uint64, len(a))
-memcpy64.Copy(dst, a)
+memcpy.Copy64(dst, a)
 println(dst) // the same contents
 ```
 
@@ -18,7 +18,7 @@ The solution is optimized for very long input data.
 
 ## Copy bytes slice
 
-Package also provides [`CopyBytes`](bytes.go) method, that copies bytes slice.
+Package also provides [`Copy`](bytes.go) method, that copies bytes slice.
 
 ## Copy raw memory
 

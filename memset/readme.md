@@ -1,15 +1,15 @@
-# Memset64
+# Memset
 
-Vectorised memory set of array of uint64 number.
+Vectorised memory set of array of bytes or uint64 numbers.
 
 ## Usage
 
 The minimal working example:
 ```go
-import "github.com/koykov/simd/memset64"
+import "github.com/koykov/simd/memset"
 
 var a = []uint64{0, ..., 0} // very big slice
-memset64.Memset(a, 0xFFFFFFFFFFFFFFFF)
+memset.Memset64(a, 0xFFFFFFFFFFFFFFFF)
 println(a) // [0xFFFFFFFFFFFFFFFF, ..., 0xFFFFFFFFFFFFFFFF]
 ```
 

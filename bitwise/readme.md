@@ -1,16 +1,16 @@
-# Bitwise64
+# Bitwise
 
-Vectorised bitwise operations over arrays of uint64 number.
+Vectorised bitwise operations over arrays of bytes or uint64 numbers.
 
 ## Usage
 
 The minimal working example:
 ```go
-import "github.com/koykov/simd/bitwise64"
+import "github.com/koykov/simd/bitwise"
 
 var a = []uint64{0x00000000FFFFFFFF, ..., 0x00000000FFFFFFFF} // very big slice
 var b = []uint64{0xFFFFFFFF00000000, ..., 0xFFFFFFFF00000000} // very big slice
-res := bitwise64.Or(a, b)
+res := bitwise.Or64(a, b)
 println(res) // number of merged bits
 ```
 

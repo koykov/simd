@@ -1,15 +1,15 @@
-# Memclr64
+# Memclr
 
-Vectorised memory clearing of array of uint64 number.
+Vectorised memory clearing of array of bytes or uint64 numbers.
 
 ## Usage
 
 The minimal working example:
 ```go
-import "github.com/koykov/simd/memclr64"
+import "github.com/koykov/simd/memclr"
 
 var a = []uint64{0xFFFFFFFFFFFFFFFF, ..., 0xFFFFFFFFFFFFFFFF} // very big slice
-memclr64.Clear(a)
+memclr.Clear64(a)
 println(a) // [0, ..., 0]
 ```
 
@@ -17,10 +17,9 @@ The solution is optimized for very long input data.
 
 ## Clear bytes slice
 
-Package also provides [`ClearBytes`](bytes.go) method, that clears bytes slice. It uses default `Clear` method inside for
-clearing and clear rest of bytes in simple loop.
+Package also provides [`Clear`](bytes.go) method, that clears bytes slice.
 
 ## Clear raw memory
 
-Package provides unsafe version [CleanUnsafe](unsafe.go) method. Use with caution! Pointer must point to a memory block
+Package provides unsafe version [ClearUnsafe](unsafe.go) method. Use with caution! Pointer must point to a memory block
 without heap pointers, memory leak may occur otherwise.
