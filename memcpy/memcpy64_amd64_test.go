@@ -17,7 +17,7 @@ type stage struct {
 var stages []stage
 
 func init() {
-	for i := 1; i < 1e9; i *= 10 {
+	for i := 10; i < 1e9; i *= 10 {
 		src := make([]uint64, i-1)
 		for j := 0; j < len(src)-1; j++ {
 			src[j] = math.MaxUint64
