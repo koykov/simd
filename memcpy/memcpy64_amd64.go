@@ -21,11 +21,14 @@ func memcpy64(dst, src []uint64) {
 }
 
 func memcpyAVX512(dst, src []uint64) {
-	n := uintptr(len(src))
-	if n == 0 || len(dst) == 0 {
+	n, m := len(dst), len(src)
+	if n == 0 || m == 0 {
 		return
 	}
-	memmoveAVX512(unsafe.Pointer(&dst[0]), unsafe.Pointer(&src[0]), n)
+	if m < n {
+		n = m
+	}
+	memmoveAVX512(unsafe.Pointer(&dst[0]), unsafe.Pointer(&src[0]), uintptr(n*8))
 }
 
 //go:noescape

@@ -58,6 +58,30 @@ func TestCopy(t *testing.T) {
 	t.Run("generic", func(t *testing.T) { btestfn(t, memcpy64Generic) })
 	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL {
 		t.Run("avx512", func(t *testing.T) { btestfn(t, memcpyAVX512) })
+		t.Run("integrity", func(t *testing.T) {
+			sz := 10 * 1024 * 1024
+			data := make([]byte, sz)
+			for i := 0; i < sz; i++ {
+				data[i] = byte(i % 256)
+			}
+			chunksz := 1024 * 1024
+			for offset := 0; offset < sz; offset += chunksz {
+				copysz := chunksz
+				if offset+chunksz > sz {
+					copysz = sz - offset
+				}
+
+				buf := make([]byte, copysz)
+				copy(buf, data[offset:offset+copysz])
+				for i := 0; i < copysz; i++ {
+					if buf[i] != data[offset+i] {
+						t.Errorf("Data mismatch at offset %d/%d: got %d, want %d",
+							i, offset+i, buf[i], data[offset+i])
+						break
+					}
+				}
+			}
+		})
 	}
 }
 
