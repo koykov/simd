@@ -17,7 +17,7 @@ type stage struct {
 var stages []stage
 
 func init() {
-	for i := 10; i < 1e9; i *= 10 {
+	for i := 1; i < 1e9; i *= 10 {
 		src := make([]uint64, i-1)
 		for j := 0; j < len(src)-1; j++ {
 			src[j] = math.MaxUint64
@@ -31,6 +31,7 @@ func testfn(t *testing.T, fn func([]uint64, []uint64)) {
 	for i := 0; i < len(stages); i++ {
 		st := stages[i]
 		t.Run(strconv.Itoa(len(st.dst)), func(t *testing.T) {
+			clear(st.dst)
 			fn(st.dst, st.src)
 			for j := 0; j < len(st.src); j++ {
 				if st.dst[j] != st.src[j] {
