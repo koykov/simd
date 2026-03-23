@@ -62,7 +62,7 @@ func TestCopy(t *testing.T) {
 	if cpu.X86.HasAVX2 {
 		t.Run("avx2", func(t *testing.T) { btestfn(t, memcpyAVX2) })
 	}
-	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL {
+	if cpu.X86.HasAVX512F {
 		t.Run("avx512", func(t *testing.T) { btestfn(t, memcpyAVX512) })
 	}
 }
@@ -100,7 +100,7 @@ func BenchmarkCopy(b *testing.B) {
 	if cpu.X86.HasAVX2 {
 		b.Run("avx2", func(b *testing.B) { bbenchfn(b, memcpyAVX2) })
 	}
-	if cpu.X86.HasAVX512F && cpu.X86.HasAVX512VL {
+	if cpu.X86.HasAVX512F {
 		b.Run("avx512", func(b *testing.B) { bbenchfn(b, memcpyAVX512) })
 	}
 }
