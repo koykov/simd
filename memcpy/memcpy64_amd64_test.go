@@ -31,7 +31,10 @@ func testfn(t *testing.T, fn func([]uint64, []uint64)) {
 	for i := 0; i < len(stages); i++ {
 		st := stages[i]
 		t.Run(strconv.Itoa(len(st.dst)), func(t *testing.T) {
-			clear(st.dst)
+			_ = st.dst[len(st.dst)-1]
+			for j := 0; j < len(st.dst); j++ {
+				st.dst[j] = 0
+			}
 			fn(st.dst, st.src)
 			for j := 0; j < len(st.src); j++ {
 				if st.dst[j] != st.src[j] {
