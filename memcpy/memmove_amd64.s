@@ -12,7 +12,7 @@ TEXT ·memmoveAVX512(SB), NOSPLIT, $0-24
 	TESTQ	BX, BX
 	JEQ	move_0
 
-	// Small sizes handling
+	// Small sizes handling (same as original)
 	CMPQ	BX, $2
 	JBE	move_1or2
 	CMPQ	BX, $4
@@ -32,28 +32,26 @@ TEXT ·memmoveAVX512(SB), NOSPLIT, $0-24
 	CMPQ	BX, $256
 	JBE	move_129through256
 
-	// For larger sizes use AVX512
+	// For larger sizes, use AVX512
+	CMPQ	BX, $2048
+	JL	avx512_small
+
+	// For very large copies (>2MB), use non-temporal stores
+	CMPQ	BX, $0x200000
+	JAE	avx512_big_forward
+
+	// Medium size forward copy with AVX512
 	JMP	avx512_forward
 
-// AVX512 implementation for forward copy
+// AVX512 implementations
 avx512_forward:
-	// Save original destination for head restoration
-	MOVQ	DI, R8
-
-	// Calculate end pointer
+	// Save tail (last 128 bytes) for unaligned handling
 	LEAQ	(SI)(BX*1), CX
+	SUBQ	$128, CX		// CX points to start of last 128 bytes
+	VMOVDQU64 (CX), Z5
+	VMOVDQU64 64(CX), Z6
 
-	// Save tail (last 128 bytes) - using negative offsets from end
-	VMOVDQU64 -0x80(CX), Z5
-	VMOVDQU64 -0x70(CX), Z6
-	VMOVDQU64 -0x60(CX), Z7
-	VMOVDQU64 -0x50(CX), Z8
-	VMOVDQU64 -0x40(CX), Z9
-	VMOVDQU64 -0x30(CX), Z10
-	VMOVDQU64 -0x20(CX), Z11
-	VMOVDQU64 -0x10(CX), Z12
-
-	// Save head (first 64 bytes)
+	// Save head (first 64 bytes) for unaligned handling
 	VMOVDQU64 (SI), Z4
 
 	// Align destination to 64-byte boundary
@@ -69,19 +67,16 @@ avx512_forward:
 	SUBQ	R11, BX
 	ADDQ	R11, SI
 
-	// Calculate new end pointer for tail restoration
-	LEAQ	(DI)(BX*1), CX
+	// Main aligned copy loop - 256 bytes per iteration (4x ZMM)
+	MOVQ	BX, R12
+	SHRQ	$8, R12		// number of 256-byte blocks
+	ANDQ	$255, BX	// remaining bytes after 256-byte blocks
 
-	// Main aligned copy loop - process in 256-byte chunks
-	MOVQ	BX, AX
-	SHRQ	$8, AX		// number of 256-byte blocks
-	ANDQ	$0xFF, BX	// remaining bytes after 256-byte blocks
-
-	TESTQ	AX, AX
-	JZ	avx512_forward_128
+	TESTQ	R12, R12
+	JZ	avx512_forward_128_loop_entry
 
 avx512_forward_256_loop:
-	// Copy 256 bytes using AVX512
+	// Copy 256 bytes (4x64) using AVX512
 	VMOVDQU64 (SI), Z0
 	VMOVDQU64 64(SI), Z1
 	VMOVDQU64 128(SI), Z2
@@ -94,17 +89,17 @@ avx512_forward_256_loop:
 
 	ADDQ	$256, SI
 	ADDQ	$256, DI
-	DECQ	AX
+	DECQ	R12
 	JNZ	avx512_forward_256_loop
 
-avx512_forward_128:
+avx512_forward_128_loop_entry:
 	// Handle remaining 128-byte blocks
-	MOVQ	BX, AX
-	SHRQ	$7, AX		// number of 128-byte blocks
-	ANDQ	$0x7F, BX	// remaining bytes
+	MOVQ	BX, R12
+	SHRQ	$7, R12		// number of 128-byte blocks
+	ANDQ	$127, BX	// remaining bytes
 
-	TESTQ	AX, AX
-	JZ	avx512_forward_64
+	TESTQ	R12, R12
+	JZ	avx512_forward_64_loop_entry
 
 avx512_forward_128_loop:
 	VMOVDQU64 (SI), Z0
@@ -115,17 +110,17 @@ avx512_forward_128_loop:
 
 	ADDQ	$128, SI
 	ADDQ	$128, DI
-	DECQ	AX
+	DECQ	R12
 	JNZ	avx512_forward_128_loop
 
-avx512_forward_64:
+avx512_forward_64_loop_entry:
 	// Handle remaining 64-byte blocks
-	MOVQ	BX, AX
-	SHRQ	$6, AX		// number of 64-byte blocks
-	ANDQ	$0x3F, BX	// remaining bytes
+	MOVQ	BX, R12
+	SHRQ	$6, R12		// number of 64-byte blocks
+	ANDQ	$63, BX		// remaining bytes
 
-	TESTQ	AX, AX
-	JZ	avx512_forward_restore_head
+	TESTQ	R12, R12
+	JZ	avx512_forward_restore
 
 avx512_forward_64_loop:
 	VMOVDQU64 (SI), Z0
@@ -133,31 +128,159 @@ avx512_forward_64_loop:
 
 	ADDQ	$64, SI
 	ADDQ	$64, DI
-	DECQ	AX
+	DECQ	R12
 	JNZ	avx512_forward_64_loop
 
-avx512_forward_restore_head:
-	// Restore head at original destination
-	VMOVDQU64 Z4, (R8)
+avx512_forward_restore:
+	// Restore unaligned parts
+	// Calculate the end position for tail restoration
+	LEAQ	(DI)(BX*1), CX
 
-	// Restore tail at the end
-	// Calculate tail destination
-	LEAQ	(R8)(BX*1), R9
-	ADDQ	R11, R9
+	// Restore head
+	VMOVDQU64 Z4, (R10)
 
-	VMOVDQU64 Z5, -0x80(R9)
-	VMOVDQU64 Z6, -0x70(R9)
-	VMOVDQU64 Z7, -0x60(R9)
-	VMOVDQU64 Z8, -0x50(R9)
-	VMOVDQU64 Z9, -0x40(R9)
-	VMOVDQU64 Z10, -0x30(R9)
-	VMOVDQU64 Z11, -0x20(R9)
-	VMOVDQU64 Z12, -0x10(R9)
+	// Restore tail (128 bytes) at the end
+	SUBQ	$128, CX
+	VMOVDQU64 Z5, (CX)
+	VMOVDQU64 Z6, 64(CX)
 
 	VZEROUPPER
 	RET
 
-// Small size handlers (optimized with AVX512 for larger small sizes)
+avx512_small:
+	// For 256-2048 bytes, use simpler approach with AVX512
+	LEAQ	(SI)(BX*1), CX
+	SUBQ	$128, CX		// CX points to start of last 128 bytes
+
+	// Load tail (last 128 bytes)
+	VMOVDQU64 (CX), Z5
+	VMOVDQU64 64(CX), Z6
+
+	// Load head
+	VMOVDQU64 (SI), Z4
+
+	// Align destination
+	MOVQ	DI, R10
+	ANDQ	$-64, DI
+	ADDQ	$64, DI
+	MOVQ	DI, R11
+	SUBQ	R10, R11
+
+	SUBQ	R11, BX
+	ADDQ	R11, SI
+
+	// Copy aligned blocks
+	MOVQ	BX, R12
+	SHRQ	$6, R12		// number of 64-byte blocks
+	ANDQ	$63, BX
+
+	TESTQ	R12, R12
+	JZ	avx512_small_restore
+
+avx512_small_loop:
+	VMOVDQU64 (SI), Z0
+	VMOVDQA64 Z0, (DI)
+	ADDQ	$64, SI
+	ADDQ	$64, DI
+	DECQ	R12
+	JNZ	avx512_small_loop
+
+avx512_small_restore:
+	// Restore head and tail
+	LEAQ	(DI)(BX*1), CX
+	VMOVDQU64 Z4, (R10)
+	SUBQ	$128, CX
+	VMOVDQU64 Z5, (CX)
+	VMOVDQU64 Z6, 64(CX)
+
+	VZEROUPPER
+	RET
+
+avx512_big_forward:
+	// Large copy with non-temporal stores (>2MB)
+	LEAQ	(SI)(BX*1), CX
+	SUBQ	$128, CX		// CX points to start of last 128 bytes
+
+	// Save tail
+	VMOVDQU64 (CX), Z5
+	VMOVDQU64 64(CX), Z6
+
+	// Save head
+	VMOVDQU64 (SI), Z4
+
+	// Align destination
+	MOVQ	DI, R8
+	ANDQ	$-64, DI
+	ADDQ	$64, DI
+	MOVQ	DI, R10
+	SUBQ	R8, R10
+
+	SUBQ	R10, BX
+	ADDQ	R10, SI
+
+	// Calculate number of 64-byte blocks
+	MOVQ	BX, R12
+	SHRQ	$6, R12		// number of 64-byte blocks
+	ANDQ	$63, BX		// remaining bytes
+
+	// Prefetch and copy using non-temporal stores
+	TESTQ	R12, R12
+	JZ	avx512_big_restore
+
+avx512_big_loop:
+	// Prefetch ahead (512 bytes ahead)
+	PREFETCHNTA 0x200(SI)
+	PREFETCHNTA 0x240(SI)
+	PREFETCHNTA 0x280(SI)
+	PREFETCHNTA 0x2C0(SI)
+
+	// Copy 256 bytes per iteration using non-temporal stores
+	VMOVDQU64 (SI), Z0
+	VMOVDQU64 64(SI), Z1
+	VMOVDQU64 128(SI), Z2
+	VMOVDQU64 192(SI), Z3
+
+	VMOVNTDQ Z0, (DI)
+	VMOVNTDQ Z1, 64(DI)
+	VMOVNTDQ Z2, 128(DI)
+	VMOVNTDQ Z3, 192(DI)
+
+	ADDQ	$256, SI
+	ADDQ	$256, DI
+	SUBQ	$32, R12	// 256 bytes = 4*64, so decrement by 4 blocks
+	JA	avx512_big_loop
+
+	// Handle remaining 64-byte blocks
+	MOVQ	R12, CX
+	ANDQ	$3, CX		// remaining blocks (0-3)
+	SHLQ	$6, CX		// convert to bytes
+
+	TESTQ	CX, CX
+	JZ	avx512_big_restore
+
+avx512_big_remainder:
+	VMOVDQU64 (SI), Z0
+	VMOVNTDQ Z0, (DI)
+	ADDQ	$64, SI
+	ADDQ	$64, DI
+	SUBQ	$64, CX
+	JNZ	avx512_big_remainder
+
+avx512_big_restore:
+	// SFENCE for non-temporal stores
+	SFENCE
+
+	// Restore head and tail
+	LEAQ	(DI)(BX*1), CX
+	VMOVDQU64 Z4, (R8)
+	SUBQ	$128, CX
+	VMOVDQU64 Z5, (CX)
+	VMOVDQU64 Z6, 64(CX)
+
+	VZEROUPPER
+	RET
+
+// Small size handlers
 move_1or2:
 	MOVB	(SI), AX
 	MOVB	-1(SI)(BX*1), CX
@@ -248,6 +371,5 @@ move_129through256:
 	VMOVDQU64 Z5, -192(DI)(BX*1)
 	VMOVDQU64 Z6, -128(DI)(BX*1)
 	VMOVDQU64 Z7, -64(DI)(BX*1)
-	// Clear upper registers
 	VZEROUPPER
 	RET
