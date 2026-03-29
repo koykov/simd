@@ -19,7 +19,7 @@ var stages []stage
 func init() {
 	for i := 1; i < 1e9; i *= 10 {
 		src := make([]uint64, i-1)
-		for j := 0; j < len(src)-1; j++ {
+		for j := 0; j < len(src); j++ {
 			src[j] = math.MaxUint64
 		}
 		dst := make([]uint64, i)
