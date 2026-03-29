@@ -27,38 +27,24 @@ func init() {
 	}
 }
 
-func testfn(t *testing.T, fn func([]uint64, []uint64)) {
-	for i := 0; i < len(stages); i++ {
-		st := stages[i]
-		t.Run(strconv.Itoa(len(st.dst)), func(t *testing.T) {
-			_ = st.dst[len(st.dst)-1]
-			for j := 0; j < len(st.dst); j++ {
-				st.dst[j] = 0
-			}
-			fn(st.dst, st.src)
-			for j := 0; j < len(st.src); j++ {
-				if st.dst[j] != st.src[j] {
-					t.Errorf("mismatch found, position %d", j)
-				}
-			}
-		})
-	}
-}
-
-func benchfn(b *testing.B, fn func([]uint64, []uint64)) {
-	for i := 0; i < len(stages); i++ {
-		st := stages[i]
-		b.Run(strconv.Itoa(len(st.dst)), func(b *testing.B) {
-			b.ReportAllocs()
-			b.SetBytes(int64(len(st.dst) * 8))
-			for j := 0; j < b.N; j++ {
-				fn(st.dst, st.src)
-			}
-		})
-	}
-}
-
 func TestCopy64(t *testing.T) {
+	testfn := func(t *testing.T, fn func([]uint64, []uint64)) {
+		for i := 0; i < len(stages); i++ {
+			st := stages[i]
+			t.Run(strconv.Itoa(len(st.dst)), func(t *testing.T) {
+				_ = st.dst[len(st.dst)-1]
+				for j := 0; j < len(st.dst); j++ {
+					st.dst[j] = 0
+				}
+				fn(st.dst, st.src)
+				for j := 0; j < len(st.src); j++ {
+					if st.dst[j] != st.src[j] {
+						t.Errorf("mismatch found, position %d", j)
+					}
+				}
+			})
+		}
+	}
 	t.Run("generic", func(t *testing.T) { testfn(t, memcpy64Generic) })
 	if cpu.X86.HasSSE2 {
 		t.Run("sse2", func(t *testing.T) { testfn(t, memcpySSE2) })
@@ -72,6 +58,18 @@ func TestCopy64(t *testing.T) {
 }
 
 func BenchmarkCopy64(b *testing.B) {
+	benchfn := func(b *testing.B, fn func([]uint64, []uint64)) {
+		for i := 0; i < len(stages); i++ {
+			st := stages[i]
+			b.Run(strconv.Itoa(len(st.dst)), func(b *testing.B) {
+				b.ReportAllocs()
+				b.SetBytes(int64(len(st.dst) * 8))
+				for j := 0; j < b.N; j++ {
+					fn(st.dst, st.src)
+				}
+			})
+		}
+	}
 	b.Run("generic", func(b *testing.B) { benchfn(b, memcpy64Generic) })
 	if cpu.X86.HasSSE2 {
 		b.Run("sse2", func(b *testing.B) { benchfn(b, memcpySSE2) })
