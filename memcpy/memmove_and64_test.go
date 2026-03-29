@@ -20,7 +20,7 @@ func TestMemmove(t *testing.T) {
 				for j := 0; j < len(st.dst); j++ {
 					st.dst[j] = 0
 				}
-				fn(unsafe.Pointer(&st.dst[0]), unsafe.Pointer(&st.src[0]), uintptr(len(st.src)))
+				fn(unsafe.Pointer(&st.dst[0]), unsafe.Pointer(&st.src[0]), uintptr(len(st.src)*8))
 				for j := 0; j < len(st.src); j++ {
 					if st.dst[j] != st.src[j] {
 						t.Errorf("mismatch found, position %d", j)
@@ -47,7 +47,7 @@ func BenchmarkMemmove(b *testing.B) {
 				b.ReportAllocs()
 				b.SetBytes(int64(len(st.dst) * 8))
 				for j := 0; j < b.N; j++ {
-					fn(unsafe.Pointer(&st.dst[0]), unsafe.Pointer(&st.src[0]), uintptr(len(st.src)))
+					fn(unsafe.Pointer(&st.dst[0]), unsafe.Pointer(&st.src[0]), uintptr(len(st.src)*8))
 				}
 			})
 		}
