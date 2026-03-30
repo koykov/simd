@@ -27,43 +27,30 @@ func init() {
 	}
 }
 
-func btestfn(t *testing.T, fn func([]uint64, []uint64)) {
-	for i := 0; i < len(stages); i++ {
-		st := stages[i]
-		t.Run(strconv.Itoa(len(st.dst)), func(t *testing.T) {
-			fn(st.dst, st.src)
-			for j := 0; j < len(st.src); j++ {
-				if st.dst[j] != st.src[j] {
-					t.Errorf("mismatch found, position %d", j)
-				}
-			}
-		})
-	}
-}
-
-func bbenchfn(b *testing.B, fn func([]uint64, []uint64)) {
-	for i := 0; i < len(stages); i++ {
-		st := stages[i]
-		b.Run(strconv.Itoa(len(st.dst)), func(b *testing.B) {
-			b.ReportAllocs()
-			b.SetBytes(int64(len(st.dst) * 8))
-			for j := 0; j < b.N; j++ {
-				fn(st.dst, st.src)
-			}
-		})
-	}
-}
-
 func TestCopy(t *testing.T) {
-	t.Run("generic", func(t *testing.T) { btestfn(t, memcpy64Generic) })
+	testfn := func(t *testing.T, fn func([]uint64, []uint64)) {
+		for i := 0; i < len(stages); i++ {
+			st := stages[i]
+			t.Run(strconv.Itoa(len(st.dst)), func(t *testing.T) {
+				fn(st.dst, st.src)
+				for j := 0; j < len(st.src); j++ {
+					if st.dst[j] != st.src[j] {
+						t.Errorf("mismatch found, position %d", j)
+					}
+				}
+			})
+		}
+	}
+
+	t.Run("generic", func(t *testing.T) { testfn(t, memcpy64Generic) })
 	if cpu.X86.HasSSE2 {
-		t.Run("sse2", func(t *testing.T) { btestfn(t, memcpySSE2) })
+		t.Run("sse2", func(t *testing.T) { testfn(t, memcpySSE2) })
 	}
 	if cpu.X86.HasAVX2 {
-		t.Run("avx2", func(t *testing.T) { btestfn(t, memcpyAVX2) })
+		t.Run("avx2", func(t *testing.T) { testfn(t, memcpyAVX2) })
 	}
 	if cpu.X86.HasAVX512F {
-		t.Run("avx512", func(t *testing.T) { btestfn(t, memcpyAVX512) })
+		t.Run("avx512", func(t *testing.T) { testfn(t, memcpyAVX512) })
 	}
 }
 
@@ -93,14 +80,26 @@ func TestIntegrity(t *testing.T) {
 }
 
 func BenchmarkCopy(b *testing.B) {
-	b.Run("generic", func(b *testing.B) { bbenchfn(b, memcpy64Generic) })
+	benchfn := func(b *testing.B, fn func([]uint64, []uint64)) {
+		for i := 0; i < len(stages); i++ {
+			st := stages[i]
+			b.Run(strconv.Itoa(len(st.dst)), func(b *testing.B) {
+				b.ReportAllocs()
+				b.SetBytes(int64(len(st.dst) * 8))
+				for j := 0; j < b.N; j++ {
+					fn(st.dst, st.src)
+				}
+			})
+		}
+	}
+	b.Run("generic", func(b *testing.B) { benchfn(b, memcpy64Generic) })
 	if cpu.X86.HasSSE2 {
-		b.Run("sse2", func(b *testing.B) { bbenchfn(b, memcpySSE2) })
+		b.Run("sse2", func(b *testing.B) { benchfn(b, memcpySSE2) })
 	}
 	if cpu.X86.HasAVX2 {
-		b.Run("avx2", func(b *testing.B) { bbenchfn(b, memcpyAVX2) })
+		b.Run("avx2", func(b *testing.B) { benchfn(b, memcpyAVX2) })
 	}
 	if cpu.X86.HasAVX512F {
-		b.Run("avx512", func(b *testing.B) { bbenchfn(b, memcpyAVX512) })
+		b.Run("avx512", func(b *testing.B) { benchfn(b, memcpyAVX512) })
 	}
 }
