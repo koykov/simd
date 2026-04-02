@@ -64,10 +64,33 @@ func TestEncode(t *testing.T) {
 				})
 			})
 		}
-
 	}
 	t.Run("generic", func(t *testing.T) { testfn32(t, encodeGeneric) })
 	if cpu.X86.HasAVX2 {
 		t.Run("avx2", func(t *testing.T) { testfn32(t, encode32AVX2) })
+	}
+}
+
+func BenchmarkEncode(b *testing.B) {
+	benchfn32 := func(b *testing.B, fn func([]byte, []byte)) {
+		for i := 0; i < len(stages); i++ {
+			stg := &stages[i]
+			b.Run(strconv.Itoa(len(stg.data)), func(b *testing.B) {
+				b.Run("32", func(b *testing.B) {
+					dst := make([]byte, len(stg.data))
+					copy(dst, stg.data)
+					b.ResetTimer()
+					b.ReportAllocs()
+					b.SetBytes(int64(len(stg.data)))
+					for j := 0; j < b.N; j++ {
+						fn(dst, k32)
+					}
+				})
+			})
+		}
+	}
+	b.Run("generic", func(b *testing.B) { benchfn32(b, encodeGeneric) })
+	if cpu.X86.HasAVX2 {
+		b.Run("avx2", func(b *testing.B) { benchfn32(b, encode32AVX2) })
 	}
 }
