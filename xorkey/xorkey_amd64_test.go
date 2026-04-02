@@ -50,47 +50,63 @@ func init() {
 }
 
 func TestEncode(t *testing.T) {
-	testfn32 := func(t *testing.T, fn func([]byte, []byte)) {
+	testfn := func(t *testing.T, key []byte, fn func([]byte, []byte)) {
 		for i := 0; i < len(stages); i++ {
 			stg := &stages[i]
 			t.Run(strconv.Itoa(len(stg.data)), func(t *testing.T) {
-				t.Run("32", func(t *testing.T) {
-					dst := make([]byte, len(stg.data))
-					copy(dst, stg.data)
-					fn(dst, k32)
-					if !bytes.Equal(dst, stg.r32) {
-						t.Fail()
-					}
-				})
+				dst := make([]byte, len(stg.data))
+				copy(dst, stg.data)
+				fn(dst, key)
+				expect := stg.r32
+				if len(key) == 64 {
+					expect = stg.r64
+				}
+				if !bytes.Equal(dst, expect) {
+					t.Fail()
+				}
 			})
 		}
 	}
-	t.Run("generic", func(t *testing.T) { testfn32(t, encodeGeneric) })
-	if cpu.X86.HasAVX2 {
-		t.Run("avx2", func(t *testing.T) { testfn32(t, encode32AVX2) })
-	}
+	t.Run("32", func(t *testing.T) {
+		t.Run("generic", func(t *testing.T) { testfn(t, k32, encodeGeneric) })
+		if cpu.X86.HasAVX2 {
+			t.Run("avx2", func(t *testing.T) { testfn(t, k32, encode32AVX2) })
+		}
+	})
+	t.Run("64", func(t *testing.T) {
+		t.Run("generic", func(t *testing.T) { testfn(t, k64, encodeGeneric) })
+		if cpu.X86.HasAVX2 {
+			t.Run("avx2", func(t *testing.T) { testfn(t, k64, encode64AVX2) })
+		}
+	})
 }
 
 func BenchmarkEncode(b *testing.B) {
-	benchfn32 := func(b *testing.B, fn func([]byte, []byte)) {
+	benchfn := func(b *testing.B, key []byte, fn func([]byte, []byte)) {
 		for i := 0; i < len(stages); i++ {
 			stg := &stages[i]
 			b.Run(strconv.Itoa(len(stg.data)), func(b *testing.B) {
-				b.Run("32", func(b *testing.B) {
-					dst := make([]byte, len(stg.data))
-					copy(dst, stg.data)
-					b.ResetTimer()
-					b.ReportAllocs()
-					b.SetBytes(int64(len(stg.data)))
-					for j := 0; j < b.N; j++ {
-						fn(dst, k32)
-					}
-				})
+				dst := make([]byte, len(stg.data))
+				copy(dst, stg.data)
+				b.ResetTimer()
+				b.ReportAllocs()
+				b.SetBytes(int64(len(stg.data)))
+				for j := 0; j < b.N; j++ {
+					fn(dst, key)
+				}
 			})
 		}
 	}
-	b.Run("generic", func(b *testing.B) { benchfn32(b, encodeGeneric) })
-	if cpu.X86.HasAVX2 {
-		b.Run("avx2", func(b *testing.B) { benchfn32(b, encode32AVX2) })
-	}
+	b.Run("32", func(b *testing.B) {
+		b.Run("generic", func(b *testing.B) { benchfn(b, k32, encodeGeneric) })
+		if cpu.X86.HasAVX2 {
+			b.Run("avx2", func(b *testing.B) { benchfn(b, k32, encode32AVX2) })
+		}
+	})
+	b.Run("64", func(b *testing.B) {
+		b.Run("generic", func(b *testing.B) { benchfn(b, k64, encodeGeneric) })
+		if cpu.X86.HasAVX2 {
+			b.Run("avx2", func(b *testing.B) { benchfn(b, k64, encode64AVX2) })
+		}
+	})
 }

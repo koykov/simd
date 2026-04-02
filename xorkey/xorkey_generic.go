@@ -3,5 +3,9 @@
 package xorkey
 
 func xorkey32(data, key []byte) {
-	xorkey32Generic(data, key)
+	xorkeyGeneric(data, key)
+}
+
+func xorkey64(data, key []byte) {
+	xorkeyGeneric(data, key)
 }
