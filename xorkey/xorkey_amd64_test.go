@@ -63,6 +63,12 @@ func TestEncode(t *testing.T) {
 				}
 				if !bytes.Equal(dst, expect) {
 					t.Fail()
+					return
+				}
+				fn(dst, key)
+				if !bytes.Equal(dst, stg.data) {
+					t.Fail()
+					return
 				}
 			})
 		}
