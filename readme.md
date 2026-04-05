@@ -10,6 +10,7 @@ Collection of various vectorised functions. Currently supported functions:
 * [SkipLine](skipline) - find end of line in multi-line bytes slice
 * [Indexbyte](indexbyte) - find position of given byte in bytes slice
 * [Indextoken](indextoken) - find position of next token in bytes slice
+* [Xorkey](xorkey) - apply XOR operation over data using given key
 * ...
 
 ## Supported architectures/instructions
