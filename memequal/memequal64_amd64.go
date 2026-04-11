@@ -20,8 +20,8 @@ func init() {
 	funcAMD64 = memequal64Generic
 }
 
-func memequal64(dst, src []uint64) bool {
-	return funcAMD64(dst, src)
+func memequal64(a, b []uint64) bool {
+	return funcAMD64(a, b)
 }
 
 //go:noescape
