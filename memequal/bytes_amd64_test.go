@@ -31,7 +31,7 @@ func TestEqual(t *testing.T) {
 		for i := 0; i < len(bstages); i++ {
 			st := bstages[i]
 			t.Run(strconv.Itoa(len(st.a)), func(t *testing.T) {
-				r := equal(st.a, st.b, fn)
+				r := memequal(st.a, st.b, fn)
 				if r != st.result {
 					t.Fail()
 				}
@@ -59,7 +59,7 @@ func BenchmarkEqual(b *testing.B) {
 				b.ReportAllocs()
 				b.SetBytes(int64(len(st.a)))
 				for j := 0; j < b.N; j++ {
-					equal(st.a, st.b, fn)
+					memequal(st.a, st.b, fn)
 				}
 			})
 		}

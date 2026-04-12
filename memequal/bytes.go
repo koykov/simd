@@ -7,10 +7,10 @@ import (
 
 // Equal checks equality of given bytes arrays.
 func Equal(a, b []byte) bool {
-	return equal(a, b, memequal64)
+	return memequal(a, b, memequal64)
 }
 
-func equal(a, b []byte, fn func([]uint64, []uint64) bool) bool {
+func memequal(a, b []byte, fn func([]uint64, []uint64) bool) bool {
 	const blocksz = 32
 	n, m := len(a), len(b)
 	if n != m {
