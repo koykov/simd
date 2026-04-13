@@ -6,6 +6,7 @@ Collection of various vectorised functions. Currently supported functions:
 * [Memclr](memclr) - clear arrays of 64-bit unsigned integers or bytes
 * [Memcpy](memcpy) - copy arrays of 64-bit unsigned integers or bytes
 * [Memset](memclr) - fill arrays of 64-bit unsigned integers or bytes
+* [Memequal](memequal) - check equality of arrays of 64-bit unsigned integers or bytes
 * [Hamming](hamming) - calculate Hamming distance of 64-bit unsigned integers or bytes
 * [SkipLine](skipline) - find end of line in multi-line bytes slice
 * [Indexbyte](indexbyte) - find position of given byte in bytes slice
